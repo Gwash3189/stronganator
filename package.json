@@ -1,0 +1,39 @@
+{
+  "name": "stronganator",
+  "version": "0.0.1",
+  "description": "Types and (optional) run time type checking for JavaScript",
+  "main": "dist/bundle.js",
+  "dependencies": {
+    "babel-loader": "~5.3.2",
+    "webpack": "~1.12.2",
+    "babel-core": "~5.8.25",
+    "object.observe": "~0.2.4",
+    "lodash": "~3.10.1"
+  },
+  "devDependencies": {
+    "babel-loader": "~5.3.2",
+    "webpack": "~1.12.2"
+  },
+  "scripts": {
+    "build": "webpack --config ./webpack.prod.config.js --progress --colors",
+    "dev": "webpack --config ./webpack.dev.config.js --progress --colors",
+    "watch:dev": "webpack --config ./webpack.dev.config.js --progress --colors --watch"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Gwash3189/stronganator.git"
+  },
+  "keywords": [
+    "type",
+    "checking",
+    "types",
+    "strong",
+    "run",
+    "time"
+  ],
+  "author": "Adam Beck",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Gwash3189/stronganator/issues"
+  }
+}
