@@ -12,12 +12,20 @@
   },
   "devDependencies": {
     "babel-loader": "~5.3.2",
-    "webpack": "~1.12.2"
+    "webpack": "~1.12.2",
+    "chai": "~3.3.0",
+    "mocha": "~2.3.3",
+    "istanbul": "~0.3.22",
+    "babel": "~5.8.23"
   },
   "scripts": {
     "build": "webpack --config ./webpack.prod.config.js --progress --colors",
     "dev": "webpack --config ./webpack.dev.config.js --progress --colors",
-    "watch:dev": "webpack --config ./webpack.dev.config.js --progress --colors --watch"
+    "test": "./node_modules/.bin/mocha 'test/**/*.js' --compilers js:babel/register",
+    "watch:test": "./node_modules/.bin/mocha 'test/**/*.js' --compilers js:babel/register --watch",
+    "watch:dev": "webpack --config ./webpack.dev.config.js --progress --colors --watch",
+    "coverage": "istanbul cover ./node_modules/mocha/bin/_mocha -- -R spec 'test/**/*.js' --compilers js:babel/register"
+
   },
   "repository": {
     "type": "git",

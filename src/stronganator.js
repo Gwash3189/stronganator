@@ -5,6 +5,8 @@ const get = _.curry((name, obj) => obj[name]);
 const getName = get('name');
 const getTypes = get('types');
 const map = _.curry((f, a) => a.map(f));
+const mapName = map(getName);
+const mapTypes = map(getTypes);
 const first = (arr) => arr[0]
 const arrayify = (n) => [n];
 const filterBlacklist = (x) => blacklist.indexOf(x) === -1;
@@ -17,14 +19,19 @@ export const model = (opts = {}, watch = false) => {
     const result = factory(props);
     if (result) {
       let clone = _.clone(props, true);
-      clone =  _.extend(clone, opts.extend || {}, {
-        check(){
-          if (!factory(clone)) {
-            const error = `Needed ${JSON.stringify(makeTypeObject([factory]))} but got ${JSON.stringify(clone)}`
-            throw new TypeError(error);
+      clone =  _.extend(
+        clone,
+        opts.extend || {},
+        {
+          check(){
+            if (!factory(clone)) {
+              const error = `Needed ${JSON.stringify(makeTypeObject([factory]))} but got ${JSON.stringify(clone)}`
+              throw new TypeError(error);
+            }
+            return true;
           }
         }
-      });
+      );
       if (watch){
         Object.observe(clone, clone.check);
       }
@@ -39,6 +46,7 @@ export const model = (opts = {}, watch = false) => {
 const makeTypeObject = (types) => {
   return types.map(x => {
     if (!x.map(getTypes)) {
+      // not generic
       return map(getName, x);
     }
 
@@ -100,8 +108,6 @@ export const func = (types = [], retType) => {
     }
   }
 };
-
-
 
 export const type = (name, checker, types) => {
   checker.map = (f) => {
