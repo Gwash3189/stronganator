@@ -124,7 +124,7 @@ export const types = {
     }
   },
   Truthy: type('Truthy', (x) => !!x),
-  Falsey: type('Truthy', (x) => !!!x),
+  Falsey: type('Falsey', (x) => !!!x),
   Type: type('Type', (t) => {
     return t.map && types.Function(t.map) && map(getName, t);
   }),
@@ -152,9 +152,9 @@ export const types = {
   RegExp: type('RegExp', (r) => r instanceof RegExp),
   Union: (...types) => {
     const unionName = types.map(x => x.map(getName)).join(' || ');
-    return (x) => {
+    return type(unionName, (x) => {
       return types.some(f => f(x));
-    }
+    });
   }
 }
 
