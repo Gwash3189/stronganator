@@ -12,7 +12,7 @@ describe('Types', () => {
     });
     it('Should call the provided type checker when given a value', () => {
       expect(types.Watched(types.Object({name:types.String}))({name: 1})).to.not.be.ok;
-    })
+    });
   });
   describe('Dates', () => {
     it('Should have a Date type', () => {
