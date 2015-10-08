@@ -191,8 +191,9 @@ gwash.name = 1 //TypeError TypeError Needed {name: String} but got {name: 1}
 Lastly, the model function enables a basic form on composition through extention. This is done by providing an `extend` property on the provided object.
 
 ```
-const user = model({ name: types.String , extend: {getName(){}}}, true);
+const user = model({ name: types.String , extend: { getName(){ return this.name } } }, true);
 const gwash = user({ name: 'gwash' });
+console.log(gwash.getName()); //gwash
 ```
 
 

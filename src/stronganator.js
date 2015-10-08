@@ -17,6 +17,13 @@ export const model = (opts = {}, watch = false) => {
   const factory = types.Object(opts);
   return (props) => {
     const result = factory(props);
+    if (opts.extend) {
+      Object.keys(opts.extend)
+        .filter(types.Function)
+        .forEach(key => {
+          opts.extend[key] = opts.extend[key].bind(opts);
+        });
+    }
     if (result) {
       let clone = _.clone(props, true);
       clone =  _.extend(
