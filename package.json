@@ -2,30 +2,29 @@
   "name": "stronganator",
   "version": "0.0.1",
   "description": "Types and (optional) run time type checking for JavaScript",
-  "main": "dist/bundle.js",
+  "main": "dist/stronganator.js",
   "dependencies": {
-    "babel-loader": "~5.3.2",
-    "webpack": "~1.12.2",
-    "babel-core": "~5.8.25",
-    "object.observe": "~0.2.4",
     "lodash": "~3.10.1"
   },
   "devDependencies": {
-    "babel-loader": "~5.3.2",
-    "webpack": "~1.12.2",
+    "babel": "~5.8.23",
+    "babel-cli": "^6.3.15",
+    "babel-eslint": "^4.1.6",
+    "babel-preset-es2015": "^6.3.13",
+    "babel-register": "^6.3.13",
     "chai": "~3.3.0",
-    "mocha": "~2.3.3",
+    "eslint": "^1.10.3",
+    "eslint-plugin-mocha": "^1.1.0",
     "istanbul": "~0.3.22",
-    "babel": "~5.8.23"
+    "mocha": "~2.3.3",
+    "sinon": "^1.17.2"
   },
   "scripts": {
-    "build": "webpack --config ./webpack.prod.config.js --progress --colors",
-    "dev": "webpack --config ./webpack.dev.config.js --progress --colors",
-    "test": "./node_modules/.bin/mocha 'test/**/*.js' --compilers js:babel/register",
-    "watch:test": "./node_modules/.bin/mocha 'test/**/*.js' --compilers js:babel/register --watch",
-    "watch:dev": "webpack --config ./webpack.dev.config.js --progress --colors --watch",
-    "coverage": "istanbul cover ./node_modules/mocha/bin/_mocha -- -R spec 'test/**/*.js' --compilers js:babel/register"
-
+    "build": "babel src/stronganator.js > dist/stronganator.js",
+    "build:watch": "babel --watch --out-file dist/stronganator.js src/**/*.js",
+    "test": "./node_modules/.bin/mocha 'test/**/*.js' --compilers js:babel-register",
+    "test:watch": "./node_modules/.bin/mocha 'test/**/*.js' --compilers js:babel-register --watch",
+    "coverage": "istanbul cover ./node_modules/mocha/bin/_mocha -- -R spec 'test/**/*.js' --compilers js:babel-register"
   },
   "repository": {
     "type": "git",

@@ -1,0 +1,51 @@
+{
+  "env": {
+    "es6": true,
+    "browser": true,
+    "node": true
+  },
+  "extends": "eslint:recommended",
+  "ecmaFeatures": {
+    "experimentalObjectRestSpread": true
+  },
+  "plugins": [
+    "mocha"
+  ],
+  "root": true,
+  "parser": "babel-eslint",
+  "rules": {
+    "no-multiple-empty-lines": [2, {"max": 1}],
+    "mocha/no-exclusive-tests": 2,
+    "indent": [
+      2,
+      2,
+      {
+        "SwitchCase": 1,
+        "VariableDeclarator": {
+          "var": 2,
+          "let": 2,
+          "const": 3
+        }
+      }
+    ],
+    "quotes": [
+      2,
+      "single",
+      "avoid-escape"
+    ],
+    "linebreak-style": [
+      2,
+      "unix"
+    ],
+    "semi": [
+      2,
+      "always"
+    ],
+    "eol-last": 2,
+    "no-mixed-spaces-and-tabs": 2,
+    "strict": 0,
+  },
+  "globals": {
+    "__DEBUG__": false
+  }
+}

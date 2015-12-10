@@ -9,7 +9,7 @@ stronganator was initally built to abstract these checks into a common set of in
 
 ## Usage
 
-stronganator exports several interfaces, `types`, `type`, `func` and `model`.
+stronganator exports several interfaces, `types`, `type`, `func` and `match`;
 
 ### Types
 
@@ -61,10 +61,10 @@ To make your own types with stronganator you can use the `type` factory function
 Stronganator has the power to model generic types, this is done through the use of higher order functions. An example of a generic type is an `Array` as it simply a container for other values. To use the Array type (and any generic type) you must first provide a type definition. Then, a function is returned that validates that type definition.
 
 The provided generic types are
- * `Array`:   ƒ(types: [Types]) -> ƒ(items: Type) -> Boolean
- * `Object`:  ƒ(types: Object({ typeName: Type })) -> ƒ(item: Object) -> Boolean
- * `Union`:   ƒ(types: [Types]) -> ƒ(items: Any) -> Boolean
- * `Watched`: ƒ(type: Object(Any) || Array(Any)) -> ƒ(item: Object(Any) || Array(Any)) -> Boolean
+ * `Array`:   `ƒ(types: [Types]) -> ƒ(items: Type) -> Boolean`
+ * `Object`:  `ƒ(types: Object({ typeName: Type })) -> ƒ(item: Object) -> Boolean`
+ * `Union`:   `ƒ(types: [Types]) -> ƒ(items: Any) -> Boolean`
+ * `Tuple`:   `ƒ(types: [Type1, Type2 ...]) -> ƒ(tuple: [type1, type2 ...]) -> Boolean`
 
 ##### Usage
 
@@ -125,30 +125,19 @@ console.log(studentUserUnion({ id: 1})); //true
 console.log(studentUserUnion({ name: 1 })); //false
 console.log(studentUserUnion({ id: '1' })); //false
 console.log(studentUserUnion({ id: '1' })); //false
-
 ```
 
-###### Watched
-
-Watched is a special generic as it calls `Object.observe` on the incoming item, and applies the given type to that item every time changes. this provides **run time type checking**
-
-```
-const watchedUser = types.Watched(userType);
-const gwash = watchedUser({ name: 'gwash' });
-gwash.name = 'adam';
-gwash.name = 1; // TypeError
+###### Tuple
+**Note** the type in position one, must match the data in position one, and so on.
 
 ```
+const Student = types.Tuple([types.String, types.Number]);
+//position 1 must be a string
+//position 2 must be a number
 
+console.log(Student(['gwash', 1234])) //true
+console.log(Student([1234, 'gwash'])) //false
 ```
-const watchedUsers = types.Watched(types.Array(userType));
-const gwashs = watchedUsers([{ name: 'gwash1' }, { name: 'gwash2' }]);
-
-gwashs.push({ name: 'more gwash'});
-gwashs.push({ name: 1}); // TypeError;
-```
-
-
 ### Functions
 
 Stronganator also does typed functions. This is done through the `func` higher order function. The function signature for `func` is
@@ -169,31 +158,38 @@ console.log(getName({name: 1})); // TypeError (incorrect parameter type)
 const getName = func([userType], types.String).of((user) => 1);
 console.log(getName({name: 'gwash'})); // TypeError (incorrect return type)
 ```
+### Pattern Matching
 
-### Models
+match: `ƒ(tuples: [[Type, Function], ...]) -> ƒ(items: Type) -> Any`
 
-Stronganator also support models. This is done through the `model` function. The model function works just like the `types.Object` type as it takes a type definition first, then the model. The model is then checked against the type defintion. However, if an error is found then a `TypeError` is thrown with detailed information. Lastly, instead of returning a `Boolean` the `model` function returns the provided object.
+Pattern matching works by accepting a list of Tuples.
+These Tuples are of `[type.Type, type.Function]`.
 
-```
-const user = model({ name: types.String });
-console.log(user({ name: 'gwash' })); // { name: 'gwash' }
-console.log(user({ name: 1 })); // TypeError Needed {name: String} but got {name: 1}
-```
+The `match` function returns the pattern matching function.
+This pattern matching function accepts **only the types that are to be matched upon**
 
-Additionally, the model function enables **run time type checking** through `Object.observe`. This is done by passing `true` as the second argument to the `model` function.
-
-```
-const user = model({ name: types.String }, true);
-const gwash = user({ name: 'gwash' });
-gwash.name = 1 //TypeError TypeError Needed {name: String} but got {name: 1}
-```
-
-Lastly, the model function enables a basic form on composition through extention. This is done by providing an `extend` property on the provided object.
+#### Example
 
 ```
-const user = model({ name: types.String , extend: { getName(){ return this.name } } }, true);
-const gwash = user({ name: 'gwash' });
-console.log(gwash.getName()); //gwash
+const Match = match([
+  [types.String, (str) => console.log('String:', str)],
+  [types.Number, (n) => console.log('Number:', n)]
+]);
+
+console.log(Match(5)) //Number: 5
+console.log(Match('5')) //String: 5
+
+console.log(Match({})) // TypeError
 ```
 
+Additionally, if there are multiple matches for a provided argument, a `TypeError` will be thrown.
 
+
+```
+const Match = match([
+  [types.String, (str) => console.log('String:', str)],
+  [types.String, (str) => console.log('Another String:', str)],
+]);
+
+console.log(Match('5')) //TypeError
+```
