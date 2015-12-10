@@ -15,7 +15,7 @@ stronganator exports several interfaces, `types`, `type`, `func` and `match`;
 
 `types` is an object that has several properties hanging off of it. These properties are functions that take a single parameter and return a `Boolean`. These functions check the provided parameter to see if it is of a certain type, and return the result. An example of the `Number` type is
 
-```
+```javascript
 console.log(types.Number(1)); // true
 console.log(types.Number('1')); // false
 ```
@@ -36,7 +36,7 @@ A list of the provided types is below.
 
 All the above functions can be called in the the following mannor.
 
-```
+```javascript
 if(types.Date(item)) {...}
 ...
 items.filter(types.String) //filters out all non strings
@@ -72,7 +72,7 @@ The provided generic types are
 
 The object generic type consumes an Object that defines the types of it's properties. It then returns a function who is passed an object, and validates the properties of that function against the original provided types.
 
-```
+```javascript
 const userType = types.Object({
 	name: types.String
 });
@@ -84,7 +84,7 @@ console.log(userType({ name: 1 })); // false
 
 You can also nest Object types such as
 
-```
+```javascript
 const detailedUser = types.Object({
   name: types.String,
   details: types.Object({
@@ -98,7 +98,7 @@ console.log(detailedUser({ name: 'gwash', details: { phoneNumber: 555, address: 
 ```
 ###### Array
 
-```
+```javascript
 const usersType = types.Array(userType);
 // returns a function that checks that all elements pass the provided type checking
 console.log(usersType(
@@ -115,7 +115,7 @@ console.log(usersType(
 
 ###### Union
 
-```
+```javascript
 const studentType = type('Student', (x) => types.Number(x.id));
 
 const studentUserUnion = types.Union([studentType, userType]);
@@ -130,7 +130,7 @@ console.log(studentUserUnion({ id: '1' })); //false
 ###### Tuple
 **Note** the type in position one, must match the data in position one, and so on.
 
-```
+```javascript
 const Student = types.Tuple([types.String, types.Number]);
 //position 1 must be a string
 //position 2 must be a number
@@ -148,13 +148,13 @@ Stronganator also does typed functions. This is done through the `func` higher o
  * `returnType`: is simply a Type (created with the `type` function) that ensures the type of `returnType`.
 
 #### Example
-```
+```javascript
 const getName = func([userType], types.String).of((user) => user.name);
 console.log(getName({name: 'gwash'})); // 'gwash'
 console.log(getName({name: 1})); // TypeError (incorrect parameter type)
 ```
 
-```
+```javascript
 const getName = func([userType], types.String).of((user) => 1);
 console.log(getName({name: 'gwash'})); // TypeError (incorrect return type)
 ```
@@ -170,7 +170,7 @@ This pattern matching function accepts **only the types that are to be matched u
 
 #### Example
 
-```
+```javascript
 const Match = match([
   [types.String, (str) => console.log('String:', str)],
   [types.Number, (n) => console.log('Number:', n)]
@@ -185,7 +185,7 @@ console.log(Match({})) // TypeError
 Additionally, if there are multiple matches for a provided argument, a `TypeError` will be thrown.
 
 
-```
+```javascript
 const Match = match([
   [types.String, (str) => console.log('String:', str)],
   [types.String, (str) => console.log('Another String:', str)],
