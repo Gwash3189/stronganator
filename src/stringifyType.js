@@ -9,13 +9,13 @@ import {
   first,
   arrayify } from './utils';
 
-const makeTypeObject = (types) => {
+const stringifyType = (types) => {
   const isNonGeneric = (type) => {
     return !map(getTypes, type);
   };
 
   const handleNestedArrays = (type) => {
-    const result = makeTypeObject([
+    const result = stringifyType([
       map(getTypes, map(getTypes, type))
     ]);
     return `[[${result}]]`;
@@ -46,7 +46,7 @@ const makeTypeObject = (types) => {
                         .map(y => {
                           const makeChildTypeObject = _.compose(
                                                         first,
-                                                        makeTypeObject,
+                                                        stringifyType,
                                                         arrayify,
                                                         get(y),
                                                         map(getTypes)
@@ -64,4 +64,4 @@ const makeTypeObject = (types) => {
   });
 };
 
-export default makeTypeObject;
+export default stringifyType;

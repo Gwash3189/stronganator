@@ -1,5 +1,4 @@
 import type from './type';
-import func from './func';
 import { filterBlacklist, map, getName } from './utils';
 
 const Any = type('Any', () => true);
@@ -10,10 +9,37 @@ const Falsey = type('Falsey', (x) => !x);
 
 const Nil = type('Nil', (nil) => nil === null || nil === undefined);
 
+const Prom = (prom) => {
+  return !!prom.then && types.Function(prom.then);
+};
+
+const Hash = (o) => {
+  return !Array.isArray(o) && typeof o === 'object';
+};
+
 const Tuple = (typeList) => {
   return type('Tuple', (list) => {
     return list.every((x, i) => typeList[i](x));
   }, typeList);
+};
+
+const Union = (...types) => {
+  const unionName = types.map(x => x.map(getName)).join(' || ');
+  const handler = (types) => {
+    return (x) => {
+      return types.some(type => {
+        if (Array.isArray(type)) {
+          return handler(type)(x);
+        }
+        return type(x);
+      });
+    };
+  };
+  return type(unionName, handler(types));
+};
+
+const Optional = (type) => {
+  return Union(type, Nil);
 };
 
 const types = {
@@ -35,33 +61,25 @@ const types = {
     }, elementType);
   },
   Object: (propTypes) => {
-    return !propTypes
-      ? Any
-      : types.Type(propTypes)
-        ? propTypes
-        : type('Object', (obj) => {
-          return Object.keys(propTypes)
-                 .filter(filterBlacklist)
-                 .every(key => propTypes[key](obj[key]));
-        }, propTypes);
+    if (!propTypes) {
+      return Any;
+    } else if (typeof propTypes === 'object') {
+      return type('Object', (obj) => {
+        return Object.keys(propTypes)
+               .filter(filterBlacklist)
+               .every(key => propTypes[key](obj[key]));
+      }, propTypes);
+    } else if(types.Type(propTypes)) {
+      return propTypes;
+    }
   },
   Error: type('Error', (e) => e instanceof Error),
   RegExp: type('RegExp', (r) => r instanceof RegExp),
-  Union: (...types) => {
-    const unionName = types.map(x => x.map(getName)).join(' || ');
-    const handler = (types) => {
-      return (x) => {
-        return types.some(type => {
-          if (Array.isArray(type)) {
-            return handler(type)(x);
-          }
-          return type(x);
-        });
-      }
-    };
-    return type(unionName, handler(types));
-  },
-  Tuple
+  Union,
+  Optional,
+  Tuple,
+  Hash,
+  'Promise': Prom
 };
 
 export default types;

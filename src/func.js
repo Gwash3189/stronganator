@@ -1,22 +1,50 @@
 import _ from 'lodash';
 
-import makeTypeObject from './errorHandler';
-import { map, getName } from './utils';
+import stringifyType from './stringifyType';
+import T from './types';
+import { mapName, apply } from './utils';
 
-export default (types = [], retType) => {
+const invalidParamTypes = (types, args) => {
+  const requiredTyped = JSON.stringify(stringifyType(types), null, 4);
+  const providedArguments = JSON.stringify(_.flatten(args));
+  throw new TypeError(`Needed ${requiredTyped} but got ${providedArguments}`);
+};
+
+const invalidReturnType = (returnValue, returnType) => {
+  const providedReturnValue = typeof returnValue;
+  const typeName = mapName(returnType);
+  throw new TypeError(`Function returned a ${providedReturnValue} but needed a ${typeName}`);
+};
+
+const TypeArray = T.Array(T.Union(T.Type, T.Object()));
+
+export default (types = [], returnType) => {
   return {
-    of(func) {
+    of(typedFunction) {
       const funcChecker = (...args) => {
-        const validTypes = types.every((x, i) => x(args[i]));
+        let returnValue;
+        let validTypes;
+
+        if (!TypeArray(types)){
+          types = [ types ];
+        }
+
+        validTypes = types
+                     .every((x, i) => x(args[i]));
+
         if (!validTypes) {
-          throw new TypeError(`Needed ${JSON.stringify(makeTypeObject(types), null, 4)} but got ${JSON.stringify(_.flatten(args))}`);
+          invalidParamTypes(types, args);
         }
-        const returnValue = func.apply(null, args);
-        if (retType && !retType(returnValue)) {
-          throw new TypeError(`Function returned a ${typeof returnValue} but needed a ${map(getName, retType)}`);
+
+        returnValue = apply(typedFunction, args);
+
+        if (returnType && !returnType(returnValue)) {
+          invalidReturnType(returnValue, returnType);
         }
+
         return returnValue;
       };
+
       return funcChecker;
     }
   };

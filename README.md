@@ -1,5 +1,5 @@
 # stronganator
-Types and (optional) run time type checking for JavaScript
+Types with run time type checking for JavaScript
 
 ## Why
 
@@ -65,6 +65,7 @@ The provided generic types are
  * `Object`:  `ƒ(types: Object({ typeName: Type })) -> ƒ(item: Object) -> Boolean`
  * `Union`:   `ƒ(types: [Types]) -> ƒ(items: Any) -> Boolean`
  * `Tuple`:   `ƒ(types: [Type1, Type2 ...]) -> ƒ(tuple: [type1, type2 ...]) -> Boolean`
+ * `Optional`:   `ƒ(type: Type) -> ƒ(x: Type || Nil) -> Boolean`
 
 ##### Usage
 
@@ -138,11 +139,21 @@ const Student = types.Tuple([types.String, types.Number]);
 console.log(Student(['gwash', 1234])) //true
 console.log(Student([1234, 'gwash'])) //false
 ```
+
+###### Optional
+
+```javascript
+const OptionalNumber = types.Optional(types.Number);
+console.log(OptionalNumber(4)) //true
+console.log(OptionalNumber('')) //false
+console.log(OptionalNumber()) //true
+```
+
 ### Functions
 
 Stronganator also does typed functions. This is done through the `func` higher order function. The function signature for `func` is
 
-`func(types: [Type], returnType: Type || Nil) -> { of: (ƒ -> returnType) } -> ƒ`
+`func(type: [Type] || Type, returnType: Any?) -> { of: (ƒ -> returnType) } -> ƒ`
 
  * `types` is an array who elements match up to the provided parameters. For example, the following call, `func([type.Date])`, would expect that the first parameter to is a Date.
  * `returnType`: is simply a Type (created with the `type` function) that ensures the type of `returnType`.

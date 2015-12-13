@@ -4,16 +4,54 @@ import { expect } from 'chai';
 import { func, type, types }  from './../src/stronganator';
 
 describe('Types', () => {
+  describe('Promise', () => {
+    it('returns true when provided with a thenable', () => {
+      expect(types.Promise({then: () => {}}))
+        .to.be.true;
+    });
+
+    it('returns false when provided with a non-thenable', () => {
+      expect(types.Promise({}))
+        .to.be.false;
+    });
+  });
+
+  describe('Hash', () => {
+    it('returns true when provided with a hash', () => {
+      expect(types.Hash({}))
+        .to.be.true;
+    });
+
+    it('returns false when provided with an array', () => {
+      expect(types.Hash([]))
+        .to.be.false;
+    });
+  });
+
+  describe('Optional', () => {
+    let OptNumber = types.Optional(types.Number);
+
+    it('returns true when provided nothing', () => {
+      expect(OptNumber())
+        .to.be.true;
+    });
+
+    it('returns false when provided a type outside of the provided type, and nil', () => {
+      expect(OptNumber(''))
+        .to.be.false;
+    });
+
+    it('return true when provided a value that matches the provided type', () => {
+      expect(OptNumber(1))
+        .to.be.true;
+    });
+  });
+
   describe('Tuples', () => {
     let testTuple;
 
     beforeEach(() => {
       testTuple = types.Tuple([types.Type, types.Function]);
-    });
-
-    it('returns a function', () => {
-      expect(testTuple)
-        .to.be.a('function');
     });
 
     it('returns false if types aren\'t in expected position', () => {
@@ -62,6 +100,7 @@ describe('Types', () => {
         .to.equal(false);
     });
   });
+
   describe('Array', () => {
     it('has a Array type', () => {
       expect(types.Array)
@@ -85,6 +124,7 @@ describe('Types', () => {
         .to.equal(false);
     });
   });
+
   describe('Nil', () => {
     it('has a Nil type', () => {
       expect(types.Nil)
@@ -105,6 +145,7 @@ describe('Types', () => {
         .to.equal(false);
     });
   });
+
   describe('String', () => {
     it('has a String type', () => {
       expect(types.String)
@@ -121,6 +162,7 @@ describe('Types', () => {
         .to.equal(false);
     });
   });
+
   describe('Number', () => {
     it('has a Number type', () => {
       expect(types.Number)
@@ -137,6 +179,7 @@ describe('Types', () => {
         .to.equal(false);
     });
   });
+
   describe('Boolean', () => {
     it('has a Boolean type', () => {
       expect(types.Boolean)
@@ -153,6 +196,7 @@ describe('Types', () => {
         .to.equal(false);
     });
   });
+
   describe('Object', () => {
     it('has a Object type', () => {
       expect(types.Object)
@@ -183,6 +227,7 @@ describe('Types', () => {
         .to.be.ok;
     });
   });
+
   describe('Function', () => {
     it('has a Function type', () => {
       expect(types.Function)
@@ -200,6 +245,7 @@ describe('Types', () => {
     });
 
   });
+
   describe('Error', () => {
     it('has a Error type', () => {
       expect(types.Error)
@@ -216,6 +262,7 @@ describe('Types', () => {
         .to.equal(false);
     });
   });
+
   describe('RegExp', () => {
     it('has a RegExp type', () => {
       expect(types.RegExp)
@@ -233,6 +280,7 @@ describe('Types', () => {
     });
 
   });
+
   describe('Union', () => {
     let t;
 
@@ -261,49 +309,6 @@ describe('Types', () => {
     it('returns false when given something outside of the union', () => {
       expect(t(/a/))
         .to.equal(false);
-    });
-  });
-});
-describe('Funcs', () => {
-  it('Should provide a func endpoint', () => {
-    expect(func)
-      .to.be.a('function');
-  });
-
-  it('Should provide a function which takes a list of types, and a return type', () => {
-    expect(func([types.Number], types.String))
-      .to.have.property('of');
-  });
-
-  describe('Of', () => {
-    let pointed;
-
-    beforeEach(() => {
-      pointed = func([types.Number], types.String);
-    });
-
-    it('Should take a function and return a new function', () => {
-      expect(pointed.of(() => ''))
-        .to.be.a('function');
-    });
-
-    it('throws an error if the incorrect types are past to or returned from the function', () => {
-      const f = pointed
-                .of(() => true);
-
-      expect(() => f(''))
-        .to.throw(TypeError);
-
-      expect(() => f(1))
-        .to.throw(TypeError);
-    });
-
-    it('Should not throw an error if the correct types are past to and returned from the function', () => {
-      const f = pointed
-                .of(() => '');
-
-      expect(() => f(1))
-        .to.not.throw(TypeError);
     });
   });
 });
