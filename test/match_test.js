@@ -6,7 +6,7 @@ import type from '../src/type';
 import { expect } from 'chai';
 import { stub } from 'sinon';
 
-describe('match', () => {
+describe.only('match', () => {
   let matchList,
       matcher,
       numberStub;

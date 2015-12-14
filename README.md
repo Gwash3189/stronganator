@@ -3,26 +3,26 @@ Types with run time type checking for JavaScript
 
 ## Why
 
-Often when making a public facing API, or an API that injests third party data, you need to take percautions to ensure you're getting the right type of parameters. This usually comes in the form of `typeof` checks or excessive `if` statments.
-
-stronganator was initally built to abstract these checks into a common set of interfaces that can be expanded and built upon.
+To keep some sanity in large projects, and to provide detailed debugging information to developers.
 
 ## Usage
 
-stronganator exports several interfaces, `types`, `type`, `func` and `match`;
+Stronganator exports several interfaces, `types`, `type`, `func`, `intersection` and `match`;
 
 ### Types
 
-`types` is an object that has several properties hanging off of it. These properties are functions that take a single parameter and return a `Boolean`. These functions check the provided parameter to see if it is of a certain type, and return the result. An example of the `Number` type is
+`import { T } from 'stronganator'`
+
+`T` is an object that has several properties hanging off of it. These properties are functions that take a single parameter and return a `Boolean`. These functions check the provided parameter to see if it is of a certain type, and return the result. An example of the `Number` type is
 
 ```javascript
-console.log(types.Number(1)); // true
-console.log(types.Number('1')); // false
+console.log(T.Number(1)); // true
+console.log(T.Number('1')); // false
 ```
 
 A list of the provided types is below.
 
- * `Any`: always retuns `true`,
+ * `Any`: always returns `true`,
  * `Truthy`: returns true if the item is `truthy`,
  * `Falsey`: returns false if the item is `falsey`,
  * `Date`: returns true if the item is of `new Date`,
@@ -31,15 +31,16 @@ A list of the provided types is below.
  * `Number`: returns true if the item is a `number`,
  * `Boolean`: returns true if the item is a `boolean`,
  * `Function`: returns true if the item is a `function`,
- * `Error` returns true if the item is an instanceof `Error`,
- * `RegExp`: returns true if the item is an instance of `RegExp`
+ * `Error` returns true if the item is an `instanceof` `Error`,
+ * `RegExp`: returns true if the item is an `instanceof` `RegExp`
+ * `Hash`: returns true if the item is an `object`.
 
-All the above functions can be called in the the following mannor.
+All the above functions can be called in the the following manner.
 
 ```javascript
-if(types.Date(item)) {...}
+if(T.Date(item)) {...}
 ...
-items.filter(types.String) //filters out all non strings
+items.filter(T.String) //filters out all non strings
 ```
 
 #### Custom types
@@ -50,15 +51,28 @@ To make your own types with stronganator you can use the `type` factory function
 
  * **name** is the name of the type, such as `Boolean` or `User`.
  * **checker** is the function that is responsible for checking if the item prescribes the the desired type. For example, the checker for the Nil type is `(nil) => nil === null || nil === undefined`.
- * **types** not really important yet, but it's used for error reporting on generic types.
+ * **types** used for detailed error reporting when creating **generics**.
 
 ##### Example
 
-`const Nil = type('Nil', (nil) => nil === null || nil === undefined);`
+###### Non-generic
+
+```javascript
+const Nil = type('Nil', (nil) => nil === null || nil === undefined); //non-generic
+```
+
+###### Generic
+```javascript
+const Array = (internalType) => {
+  return type('Array', (arr) => arr.every(internalType), internalType);
+};
+
+const StringArray = T.Array(T.String);
+```
 
 #### Generics
 
-Stronganator has the power to model generic types, this is done through the use of higher order functions. An example of a generic type is an `Array` as it simply a container for other values. To use the Array type (and any generic type) you must first provide a type definition. Then, a function is returned that validates that type definition.
+Stronganator has the power to model generic types, this is done through the use of higher order functions. An example of a generic type is an `Array` as it simply a container for other values. To use the Array type (and any generic type) you must first provide a type definition. Then, a function is returned that validates that type definition against the provided data.
 
 The provided generic types are
  * `Array`:   `ƒ(types: [Types]) -> ƒ(items: Type) -> Boolean`
@@ -71,79 +85,90 @@ The provided generic types are
 
 ###### Object
 
-The object generic type consumes an Object that defines the types of it's properties. It then returns a function who is passed an object, and validates the properties of that function against the original provided types.
+The Object generic consumes an object that defines the types of it's properties.
+It then returns a function who is passed an object, and validates the properties of that function against the original provided T.
 
 ```javascript
-const userType = types.Object({
-	name: types.String
+const User = T.Object({
+	name: T.String
 });
 // returns a function that checks that the provided item is of type { name: type.String }.
 
-console.log(userType({ name: 'gwash' })); // true
-console.log(userType({ name: 1 })); // false
+console.log(User({ name: 'gwash' })); // true
+console.log(User({ name: 1 })); // false
 ```
 
 You can also nest Object types such as
 
 ```javascript
-const detailedUser = types.Object({
-  name: types.String,
-  details: types.Object({
-    phoneNumber: types.Number,
-    address: types.String
+const DetailedUser = T.Object({
+  name: T.String,
+  details: T.Object({
+    phoneNumber: T.Number,
+    address: T.String
   });
 })
 
-console.log(detailedUser({ name: 'gwash', details: { phoneNumber: 555, address: 'no where' } })); //true
-console.log(detailedUser({ name: 'gwash', details: { phoneNumber: 555, address: 123 } })); //false
+console.log(DetailedUser({
+  name: 'gwash',
+  details: {
+    phoneNumber: 555,
+    address: 'no where'
+  }
+})); //true
+
+console.log(DetailedUser({
+  name: 'gwash',
+  details: {
+    phoneNumber: 555,
+    address: 123
+  }
+})); //false
 ```
 ###### Array
 
 ```javascript
-const usersType = types.Array(userType);
+const UserArray = T.Array(userType);
 // returns a function that checks that all elements pass the provided type checking
-console.log(usersType(
-    [
-        { name: 'gwash' }
-    ]
-); // true
-console.log(usersType(
-    [
-        {name: 1}
-    ]
-); // false
+console.log(UserArray([
+    { name: 'gwash' }
+]); // true
+
+console.log(UserArray([
+  {name: 1}
+]); // false
 ```
 
 ###### Union
 
 ```javascript
-const studentType = type('Student', (x) => types.Number(x.id));
+const Student = type('Student', (x) => T.Number(x.id));
 
-const studentUserUnion = types.Union([studentType, userType]);
+const StudentUserUnion = T.Union([Student, User]);
 
-console.log(studentUserUnion({ name: 'gwash' })); //true
-console.log(studentUserUnion({ id: 1})); //true
-console.log(studentUserUnion({ name: 1 })); //false
-console.log(studentUserUnion({ id: '1' })); //false
-console.log(studentUserUnion({ id: '1' })); //false
+console.log(StudentUserUnion({ name: 'gwash' })); //true
+console.log(StudentUserUnion({ id: 1})); //true
+console.log(StudentUserUnion({ name: 1 })); //false
+console.log(StudentUserUnion({ id: '1' })); //false
+console.log(StudentUserUnion({ id: '1' })); //false
 ```
 
 ###### Tuple
-**Note** the type in position one, must match the data in position one, and so on.
 
 ```javascript
-const Student = types.Tuple([types.String, types.Number]);
+const Student = T.Tuple([T.String, T.Number]);
 //position 1 must be a string
 //position 2 must be a number
 
 console.log(Student(['gwash', 1234])) //true
+
 console.log(Student([1234, 'gwash'])) //false
 ```
 
 ###### Optional
 
 ```javascript
-const OptionalNumber = types.Optional(types.Number);
+const OptionalNumber = T.Optional(T.Number);
 console.log(OptionalNumber(4)) //true
 console.log(OptionalNumber('')) //false
 console.log(OptionalNumber()) //true
@@ -160,14 +185,14 @@ Stronganator also does typed functions. This is done through the `func` higher o
 
 #### Example
 ```javascript
-const getName = func([userType], types.String).of((user) => user.name);
+const getName = func([User], T.String).of((user) => user.name);
 console.log(getName({name: 'gwash'})); // 'gwash'
-console.log(getName({name: 1})); // TypeError (incorrect parameter type)
+console.log(getName({name: 1})); // TypeError: Function returned a number but needed a String
 ```
 
 ```javascript
-const getName = func([userType], types.String).of((user) => 1);
-console.log(getName({name: 'gwash'})); // TypeError (incorrect return type)
+const getName = func([userType], T.String).of((user) => 1);
+console.log(getName({name: 'gwash'})); // TypeError: Needed [{ "name": "String"}] but got [{"name":1}]
 ```
 ### Pattern Matching
 
@@ -183,14 +208,14 @@ This pattern matching function accepts **only the types that are to be matched u
 
 ```javascript
 const Match = match([
-  [types.String, (str) => console.log('String:', str)],
-  [types.Number, (n) => console.log('Number:', n)]
+  [T.String, (str) => console.log('String:', str)],
+  [T.Number, (n) => console.log('Number:', n)]
 ]);
 
 console.log(Match(5)) //Number: 5
 console.log(Match('5')) //String: 5
 
-console.log(Match({})) // TypeError
+console.log(Match({})) // TypeError: Needed ["Number || Even"] but got [{}]
 ```
 
 Additionally, if there are multiple matches for a provided argument, a `TypeError` will be thrown.
@@ -198,9 +223,9 @@ Additionally, if there are multiple matches for a provided argument, a `TypeErro
 
 ```javascript
 const Match = match([
-  [types.String, (str) => console.log('String:', str)],
-  [types.String, (str) => console.log('Another String:', str)],
+  [T.Number, (n) => n * 1
+  [T.Number, (n) => n * 2
 ]);
 
-console.log(Match('5')) //TypeError
+console.log(Match('5')) //TypeError: 5 matched more than one type. Only one type must be matched. Type: Number, Result: 5 Type: Number, Result: 10
 ```

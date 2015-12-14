@@ -16,7 +16,9 @@ const errorHandler = (matchedValue, results) => {
 const matchHandler = (matcherList) => {
   let innerMatchUnion;
 
-  innerMatchUnion = apply(T.Union, matcherList);
+  const unionTypes = matcherList.map(tuple => first(tuple));
+
+  innerMatchUnion = apply(T.Union, unionTypes);
 
   return func([innerMatchUnion], T.Any)
          .of((x) => {

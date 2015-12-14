@@ -1,15 +1,13 @@
-import intersection from './intersection';
 import model from './model';
-import types from './types';
+import T from './types';
 import type from './type';
 import func from './func';
 import match from './func';
 
 export {
-  type,
-  intersection,
+  T,
   model,
   func,
-  types,
+  type,
   match
 };

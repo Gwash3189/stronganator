@@ -1,35 +1,35 @@
 /* eslint-env mocha */
 
 import { expect } from 'chai';
-import { func, type, types }  from './../src/stronganator';
+import { func, type, T }  from './../src/stronganator';
 
 describe('Types', () => {
   describe('Promise', () => {
     it('returns true when provided with a thenable', () => {
-      expect(types.Promise({then: () => {}}))
+      expect(T.Promise({then: () => {}}))
         .to.be.true;
     });
 
     it('returns false when provided with a non-thenable', () => {
-      expect(types.Promise({}))
+      expect(T.Promise({}))
         .to.be.false;
     });
   });
 
   describe('Hash', () => {
     it('returns true when provided with a hash', () => {
-      expect(types.Hash({}))
+      expect(T.Hash({}))
         .to.be.true;
     });
 
     it('returns false when provided with an array', () => {
-      expect(types.Hash([]))
+      expect(T.Hash([]))
         .to.be.false;
     });
   });
 
   describe('Optional', () => {
-    let OptNumber = types.Optional(types.Number);
+    let OptNumber = T.Optional(T.Number);
 
     it('returns true when provided nothing', () => {
       expect(OptNumber())
@@ -51,12 +51,12 @@ describe('Types', () => {
     let testTuple;
 
     beforeEach(() => {
-      testTuple = types.Tuple([types.Type, types.Function]);
+      testTuple = T.Tuple([T.Type, T.Function]);
     });
 
     it('returns false if types aren\'t in expected position', () => {
       const result = testTuple([
-        () => {}, types.Number
+        () => {}, T.Number
       ]);
 
       expect(result)
@@ -65,7 +65,7 @@ describe('Types', () => {
 
     it('returns true if types aren in expected position', () => {
       const result = testTuple([
-        types.Number, () => {}
+        T.Number, () => {}
       ]);
 
       expect(result)
@@ -73,10 +73,10 @@ describe('Types', () => {
     });
 
     it('works together with arrays', () => {
-      const tupleArray = types.Array(testTuple);
+      const tupleArray = T.Array(testTuple);
 
       const result = tupleArray([
-        [types.Number, () => {}]
+        [T.Number, () => {}]
       ]);
 
       expect(result)
@@ -86,126 +86,126 @@ describe('Types', () => {
 
   describe('Dates', () => {
     it('has a Date type', () => {
-      expect(types.Date)
+      expect(T.Date)
         .to.be.ok;
     });
 
     it('returns true when given a date', () => {
-      expect(types.Date(new Date()))
+      expect(T.Date(new Date()))
         .to.equal(true);
     });
 
     it('returns false when not given a date', () => {
-      expect(types.Date('string'))
+      expect(T.Date('string'))
         .to.equal(false);
     });
   });
 
   describe('Array', () => {
     it('has a Array type', () => {
-      expect(types.Array)
+      expect(T.Array)
         .to.be.ok;
     });
 
     it('accepts a type to describe the type of the array\'s elements', () => {
-      const t = types.Array(types.String);
+      const t = T.Array(T.String);
 
       expect(t(['string']))
         .to.equal(true);
     });
 
     it('returns true when given an Array', () => {
-      expect(types.Array()([]))
+      expect(T.Array()([]))
         .to.equal(true);
     });
 
     it('returns false when not given an Array', () => {
-      expect(types.Array()('string'))
+      expect(T.Array()('string'))
         .to.equal(false);
     });
   });
 
   describe('Nil', () => {
     it('has a Nil type', () => {
-      expect(types.Nil)
+      expect(T.Nil)
         .to.be.ok;
     });
 
     it('returns true when given a null || undefined', () => {
-      expect(types.Nil(null))
+      expect(T.Nil(null))
         .to.equal(true);
-      expect(types.Nil(undefined))
+      expect(T.Nil(undefined))
         .to.equal(true);
-      expect(types.Nil())
+      expect(T.Nil())
         .to.equal(true);
     });
 
     it('returns false when not given a null || undefined', () => {
-      expect(types.Nil('string'))
+      expect(T.Nil('string'))
         .to.equal(false);
     });
   });
 
   describe('String', () => {
     it('has a String type', () => {
-      expect(types.String)
+      expect(T.String)
         .to.be.ok;
     });
 
     it('returns true when given a string', () => {
-      expect(types.String(''))
+      expect(T.String(''))
         .to.equal(true);
     });
 
     it('returns false when not given a string', () => {
-      expect(types.String(1))
+      expect(T.String(1))
         .to.equal(false);
     });
   });
 
   describe('Number', () => {
     it('has a Number type', () => {
-      expect(types.Number)
+      expect(T.Number)
         .to.be.ok;
     });
 
     it('returns true when given a number', () => {
-      expect(types.Number(1))
+      expect(T.Number(1))
         .to.equal(true);
     });
 
     it('returns false when not given a number', () => {
-      expect(types.Number(''))
+      expect(T.Number(''))
         .to.equal(false);
     });
   });
 
   describe('Boolean', () => {
     it('has a Boolean type', () => {
-      expect(types.Boolean)
+      expect(T.Boolean)
         .to.be.ok;
     });
 
     it('returns true when given a boolean', () => {
-      expect(types.Boolean(true))
+      expect(T.Boolean(true))
         .to.equal(true);
     });
 
     it('returns false when not given a boolean', () => {
-      expect(types.Boolean(1))
+      expect(T.Boolean(1))
         .to.equal(false);
     });
   });
 
   describe('Object', () => {
     it('has a Object type', () => {
-      expect(types.Object)
+      expect(T.Object)
         .to.be.ok;
     });
 
     it('Should accept an object detailing the prop types', () => {
-      const t = types.Object({
-        name: types.Any
+      const t = T.Object({
+        name: T.Any
       });
 
       expect(t)
@@ -213,7 +213,7 @@ describe('Types', () => {
     });
 
     it('returns true when given an object', () => {
-      const t = types.Object();
+      const t = T.Object();
 
       expect(t({}))
         .to.equal(true);
@@ -221,7 +221,7 @@ describe('Types', () => {
 
     it('Should accept another type as a checker', () => {
       const t = type('custom', (x) => x.check);
-      const objT = types.Object(t);
+      const objT = T.Object(t);
 
       expect(objT({ check: true }))
         .to.be.ok;
@@ -230,17 +230,17 @@ describe('Types', () => {
 
   describe('Function', () => {
     it('has a Function type', () => {
-      expect(types.Function)
+      expect(T.Function)
         .to.be.ok;
     });
 
     it('returns true when given a function', () => {
-      expect(types.Function(() => true))
+      expect(T.Function(() => true))
         .to.equal(true);
     });
 
     it('returns false when not given a function', () => {
-      expect(types.Function(1))
+      expect(T.Function(1))
         .to.equal(false);
     });
 
@@ -248,34 +248,34 @@ describe('Types', () => {
 
   describe('Error', () => {
     it('has a Error type', () => {
-      expect(types.Error)
+      expect(T.Error)
         .to.be.ok;
     });
 
     it('returns true when given an error', () => {
-      expect(types.Error(new TypeError()))
+      expect(T.Error(new TypeError()))
         .to.equal(true);
     });
 
     it('returns false when not given a error', () => {
-      expect(types.Error(1))
+      expect(T.Error(1))
         .to.equal(false);
     });
   });
 
   describe('RegExp', () => {
     it('has a RegExp type', () => {
-      expect(types.RegExp)
+      expect(T.RegExp)
         .to.be.ok;
     });
 
     it('returns true when given a RegExp', () => {
-      expect(types.RegExp(/a/))
+      expect(T.RegExp(/a/))
         .to.equal(true);
     });
 
     it('returns false when not given a RegExp', () => {
-      expect(types.RegExp(1))
+      expect(T.RegExp(1))
         .to.equal(false);
     });
 
@@ -285,11 +285,11 @@ describe('Types', () => {
     let t;
 
     beforeEach(() => {
-      t = types.Union(types.String, types.Number);
+      t = T.Union(T.String, T.Number);
     });
 
     it('has a Union type', () => {
-      expect(types.Union)
+      expect(T.Union)
         .to.be.ok;
     });
 
@@ -322,14 +322,14 @@ describe('type errors', () => {
 
     describe('non-generic', () => {
       it('throws a type error detailing the provided types', () => {
-        const f = func([types.Number, types.Number]).of((x, y) => x + y);
+        const f = func([T.Number, T.Number]).of((x, y) => x + y);
 
         expect(() => f(1, '2'))
           .to.throw(TypeError, incorrectParamMessage);
       });
 
       it('throws a type error detailing the return type', () => {
-        const f = func([types.Number, types.Number], types.Number)
+        const f = func([T.Number, T.Number], T.Number)
                   .of((x, y) => `${x + y}`);
 
         expect(() => f(1, 1))
@@ -344,7 +344,7 @@ describe('type errors', () => {
 ] but got [1]`;
 
         it('throws a type error detailing the provided generic types', () => {
-          const f = func([types.Array(types.String)]).of((x) => x[0]);
+          const f = func([T.Array(T.String)]).of((x) => x[0]);
 
           expect(() => f([1]))
             .to.throw(TypeError,genericTypeErrorMessage);
@@ -356,7 +356,7 @@ describe('type errors', () => {
 ] but got [[1]]`;
 
           it('throws a type error detailing the provided generic types', () => {
-            const f = func([types.Array(types.Array(types.String))])
+            const f = func([T.Array(T.Array(T.String))])
                       .of((x) => x[0]);
 
             expect(() => f([[1]])).to.throw(TypeError, nestedErrorMessage);
@@ -365,7 +365,7 @@ describe('type errors', () => {
       });
 
       describe('object', () => {
-        const t = types.Object({name: types.String});
+        const t = T.Object({name: T.String});
         const objectErrorMessage = `Needed [
     {
         "name": "String"
@@ -381,9 +381,9 @@ describe('type errors', () => {
         });
 
         describe('nested', () => {
-          const t = types.Object({
-            name: types.Object({
-              x: types.String
+          const t = T.Object({
+            name: T.Object({
+              x: T.String
             })
           });
 
@@ -405,11 +405,11 @@ describe('type errors', () => {
       });
 
       describe('object & array', () => {
-        const tObject = types.Object({
-          name: types.String
+        const tObject = T.Object({
+          name: T.String
         });
 
-        const tArray = types.Array(types.String);
+        const tArray = T.Array(T.String);
 
         const objectAndArrayErrorMessage = `Needed [
     {
@@ -426,11 +426,11 @@ describe('type errors', () => {
 
         describe('nested', () => {
           it('returns a type error detailing all arguments', () => {
-            const f = func([types.Object({
-              name: types.Object({
-                x: types.String
+            const f = func([T.Object({
+              name: T.Object({
+                x: T.String
               })
-            }), types.Array(types.Array(types.String))]).of((x) => x);
+            }), T.Array(T.Array(T.String))]).of((x) => x);
             try {
               f({name: 1}, [1]);
             } catch (e) {

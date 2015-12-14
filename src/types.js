@@ -10,7 +10,7 @@ const Falsey = type('Falsey', (x) => !x);
 const Nil = type('Nil', (nil) => nil === null || nil === undefined);
 
 const Prom = (prom) => {
-  return !!prom.then && types.Function(prom.then);
+  return !!prom.then && T.Function(prom.then);
 };
 
 const Hash = (o) => {
@@ -42,12 +42,12 @@ const Optional = (type) => {
   return Union(type, Nil);
 };
 
-const types = {
+const T = {
   Any,
   Truthy,
   Falsey,
   Type: type('Type', (t) => {
-    return t && t.map && types.Function(t.map) && map(getName, t);
+    return t && t.map && T.Function(t.map) && map(getName, t);
   }),
   Nil,
   String: type('String', (str) => typeof str === 'string'),
@@ -65,11 +65,11 @@ const types = {
       return Any;
     } else if (typeof propTypes === 'object') {
       return type('Object', (obj) => {
-        return Object.keys(propTypes)
+        return obj && Object.keys(propTypes)
                .filter(filterBlacklist)
                .every(key => propTypes[key](obj[key]));
       }, propTypes);
-    } else if(types.Type(propTypes)) {
+    } else if(T.Type(propTypes)) {
       return propTypes;
     }
   },
@@ -82,4 +82,4 @@ const types = {
   'Promise': Prom
 };
 
-export default types;
+export default T;
