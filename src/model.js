@@ -13,7 +13,7 @@ const ModelDefinition = type('ModelDefinition', (modelDef) => {
              if (T.Hash(x)) {
                return handler(x);
              }
-             
+
              return T.Type(x);
            });
   };

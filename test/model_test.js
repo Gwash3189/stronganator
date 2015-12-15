@@ -2,6 +2,7 @@
 
 import model from '../src/model';
 import T from '../src/types';
+import func from '../src/func';
 import { expect } from 'chai';
 
 describe('model', () => {
@@ -10,7 +11,8 @@ describe('model', () => {
   beforeEach(() => {
     Student = model({
       name: T.String,
-      id: T.Number
+      id: T.Number,
+      getName: T.Function
     });
   });
 
@@ -22,7 +24,9 @@ describe('model', () => {
   it('can be used with the new keyword', () => {
     let stu = new Student({
       name: 'stu',
-      id: 1
+      id: 1,
+      getName: func([], T.String)
+               .of(() => this.name)
     });
 
     expect(stu)
@@ -38,7 +42,9 @@ describe('model', () => {
   it('can be used without the new keyword', () => {
     let stu = Student({
       name: 'stu',
-      id: 1
+      id: 1,
+      getName: func([], T.String)
+               .of(() => this.name)
     });
 
     expect(stu)
@@ -55,12 +61,36 @@ describe('model', () => {
     let f = () => {
       Student({
         name: 1,
-        id: 1
+        id: 1,
+        getName: func([], T.String)
+                 .of(() => this.name)
       });
     };
 
     expect(f)
-      .to.throw(TypeError,'Needed [{"name":"String","id":"Number"}] but got {"name":1,"id":1}');
+      .to.throw(TypeError,'Needed [{"name":"String","id":"Number","getName":"Function"}] but got {"name":1,"id":1}');
+  });
+
+  describe('autoBind', () => {
+    const stu = {
+      name: 'stu',
+      id: 1,
+      getName: func([], T.String)
+               .of(function() {
+                 return this.name;
+               })
+    };
+
+    let typedStu;
+
+    beforeEach(() => {
+      typedStu = Student(stu);
+    });
+
+    it('binds \'this\' to stu', () => {
+      expect(typedStu.getName())
+        .to.equal(stu.name);
+    });
   });
 
   describe('extend', () => {

@@ -18,10 +18,10 @@ const invalidReturnType = (returnValue, returnType) => {
 
 const TypeArray = T.Array(T.Union(T.Type, T.Object()));
 
-export default (types = [], returnType) => {
+export default function(types = [], returnType) {
   return {
     of(typedFunction) {
-      const funcChecker = (...args) => {
+      const funcChecker = function(...args) {
         let returnValue;
         let validTypes;
 
@@ -36,7 +36,7 @@ export default (types = [], returnType) => {
           invalidParamTypes(types, args);
         }
 
-        returnValue = apply(typedFunction, args);
+        returnValue = typedFunction.apply(this, args);
 
         if (returnType && !returnType(returnValue)) {
           invalidReturnType(returnValue, returnType);

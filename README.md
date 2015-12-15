@@ -7,7 +7,7 @@ To keep some sanity in large projects, and to provide detailed debugging informa
 
 ## Usage
 
-Stronganator exports several interfaces, `types`, `type`, `func`, `intersection` and `match`;
+Stronganator exports several interfaces, `types`, `type`, `func`, `model` and `match`;
 
 ### Types
 
@@ -150,7 +150,6 @@ console.log(StudentUserUnion({ name: 'gwash' })); //true
 console.log(StudentUserUnion({ id: 1})); //true
 console.log(StudentUserUnion({ name: 1 })); //false
 console.log(StudentUserUnion({ id: '1' })); //false
-console.log(StudentUserUnion({ id: '1' })); //false
 ```
 
 ###### Tuple
@@ -176,6 +175,8 @@ console.log(OptionalNumber()) //true
 
 ### Functions
 
+`import { func } from 'stronganator';`
+
 Stronganator also does typed functions. This is done through the `func` higher order function. The function signature for `func` is
 
 `func(type: [Type] || Type, returnType: Any?) -> { of: (ƒ -> returnType) } -> ƒ`
@@ -195,6 +196,8 @@ const getName = func([userType], T.String).of((user) => 1);
 console.log(getName({name: 'gwash'})); // TypeError: Needed [{ "name": "String"}] but got [{"name":1}]
 ```
 ### Pattern Matching
+
+`import { match } from 'stronganator';`
 
 match: `ƒ(tuples: [[Type, Function], ...]) -> ƒ(items: Type) -> Any`
 
@@ -228,4 +231,71 @@ const Match = match([
 ]);
 
 console.log(Match('5')) //TypeError: 5 matched more than one type. Only one type must be matched. Type: Number, Result: 5 Type: Number, Result: 10
+```
+
+### Model
+
+`import { model } from 'stronganator'`
+
+Used to describe a class, model or objects types. The resulting type only checks the for defined properties. It will not type check undefined properties;
+
+object: `ƒ(object: {property: PropertyType}) -> ƒ(object: PropertyType) -> PropertyType`
+
+**Note** Use `function` keyword to make typed functions here, so they get bound to the object instance
+#### Example
+
+```javascript
+const UserType = model({
+  name: T.String,
+  setName: T.Function,
+  getName: T.Function
+});
+let user;
+
+user = UserType({
+  name: 'Adam',
+  setName: func(T.String)
+           .of(funtion(name) {
+             this.name = name;
+           }),
+  getName: func([], T.String)
+           .of(function() {
+             return this.name;
+           }),
+}); // returns instance
+
+user = UserType({
+  name: 'Adam',
+  setName: func(T.String)
+           .of(funtion(name) {
+             this.name = name;
+           }),
+  getName: func([], T.String)
+           .of(function() {
+             return this.name;
+           }),
+  birthday: new Date() //untyped and unchecked
+});
+
+user = UserType({
+  name: 'Adam',
+  setName: func(T.String)
+           .of(funtion(name) {
+             this.name = name;
+           })
+}); //TypeError
+
+```
+
+#### Extension
+
+Model types can be extended by using the `.extend` method.
+
+##### Example
+
+```javascript
+const StudentType = UserType.extend({
+  id: T.String
+});
+...
 ```
