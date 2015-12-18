@@ -173,6 +173,21 @@ console.log(OptionalNumber('')) //false
 console.log(OptionalNumber()) //true
 ```
 
+##### Type Extension
+
+Types can be extended. This creates a strict union between the parent type, and the child type.
+
+###### Example
+
+```javascript
+const ActionType = T.String.extend('Action', (s) => s.indexOf('/') > 0);
+const RandomActionType = ActionType.extend('RandomAction', s => s.indexOf('random') > 0);
+
+console.log(ActionType('/')) //true
+console.log(RandomAction('/random')) //true
+console.log(RandomAction('random')) //false
+```
+
 ### Functions
 
 `import { func } from 'stronganator';`
@@ -195,6 +210,7 @@ console.log(getName({name: 1})); // TypeError: Function returned a number but ne
 const getName = func([userType], T.String).of((user) => 1);
 console.log(getName({name: 'gwash'})); // TypeError: Needed [{ "name": "String"}] but got [{"name":1}]
 ```
+
 ### Pattern Matching
 
 `import { match } from 'stronganator';`
