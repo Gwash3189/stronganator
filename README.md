@@ -287,6 +287,29 @@ user = UserType({
 
 ```
 
+If you would prefer to use the ES6 function syntax `() => {}` then the object instance is available as the last parameter.
+
+```javascript
+const UserType = model({
+  name: T.String,
+  setName: T.Function,
+  getName: T.Function
+});
+let user;
+
+user = UserType({
+  name: 'Adam',
+  setName: func(T.String)
+           .of((name, user) => {
+             user.name = name;
+           }),
+  getName: func([], T.String)
+           .of((user) => {
+             return user.name;
+           }),
+}); // returns instance
+```
+
 #### Extension
 
 Model types can be extended by using the `.extend` method.
@@ -298,4 +321,18 @@ const StudentType = UserType.extend({
   id: T.String
 });
 ...
+
+const student = StudentType({
+  name: 'Adam',
+  getName() {},
+  setName() {},
+  id: '123'
+}); //returns instance
+
+const student = StudentType({
+  name: 'Adam',
+  getName() {},
+  setName() {},
+  id: 123
+}); //TypeError
 ```

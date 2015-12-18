@@ -4,6 +4,7 @@
   "description": "Types and (optional) run time type checking for JavaScript",
   "main": "dist/stronganator.js",
   "dependencies": {
+    "babel-preset-react": "^6.3.13",
     "lodash": "~3.10.1"
   },
   "devDependencies": {
@@ -17,6 +18,8 @@
     "eslint-plugin-mocha": "^1.1.0",
     "istanbul": "~0.3.22",
     "mocha": "~2.3.3",
+    "react": "^0.14.3",
+    "react-dom": "^0.14.3",
     "sinon": "^1.17.2"
   },
   "scripts": {

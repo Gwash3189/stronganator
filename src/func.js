@@ -35,7 +35,7 @@ export default function(types = [], returnType) {
         if (!validTypes) {
           invalidParamTypes(types, args);
         }
-
+        args.push(this);
         returnValue = typedFunction.apply(this, args);
 
         if (returnType && !returnType(returnValue)) {

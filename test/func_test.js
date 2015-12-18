@@ -2,6 +2,7 @@
 
 import func from '../src/func';
 import T from '../src/types';
+import model from '../src/model';
 import { expect } from 'chai';
 
 describe('func', () => {
@@ -25,6 +26,31 @@ describe('func', () => {
     it('Should take a function and return a new function', () => {
       expect(pointed.of(() => ''))
         .to.be.a('function');
+    });
+
+    it('Should push the \'this\' context as the last argument', () => {
+      const UserType = model({
+        name: T.String,
+        setName: T.Function,
+        getName: T.Function
+      });
+
+      const user = UserType({
+        name: 'Adam',
+        setName: func(T.String)
+                 .of((name, user) => {
+                   user.name = name;
+                 }),
+        getName: func([], T.String)
+                 .of((user) => {
+                   return user.name;
+                 })
+      });
+
+      user.setName('test');
+
+      expect(user.getName())
+        .to.equal('test');
     });
 
     it('throws an error if the incorrect types are past to or returned from the function', () => {

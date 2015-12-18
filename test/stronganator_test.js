@@ -2,8 +2,55 @@
 
 import { expect } from 'chai';
 import { func, type, T }  from './../src/stronganator';
+import { stub } from 'sinon';
 
 describe('Types', () => {
+  describe('Type extension', () => {
+    it('exists on all inbuilt types', () => {
+      expect(T.String.extend)
+        .to.be.a('function');
+    });
+
+    it('returns a function', () => {
+      expect(T.String.extend('action', T.Any))
+        .to.be.a('function');
+    });
+
+    it('can chain extends', () => {
+      const type = T.String
+                   .extend('action', T.Any)
+                   .extend('another', T.Any);
+
+      expect(type)
+        .to.be.a('function');
+    });
+
+    it('calls all of the provided checkers with the provided arguments', () => {
+      let stubOne = stub().returns(true);
+      let stubTwo = stub().returns(true);
+
+      const type = T.String.extend('action', stubOne).extend('another', stubTwo);
+      type('asd');
+
+      expect(stubOne.firstCall.args[0])
+        .to.equal('asd');
+
+      expect(stubTwo.firstCall.args[0])
+        .to.equal('asd');
+    });
+
+    it('returns false if one of the provided types does not pass', () => {
+      let stubOne = stub().returns(true);
+      let stubTwo = stub().returns(false);
+
+      const type = T.String.extend('action', stubOne).extend('another', stubTwo);
+      const result = type('asd');
+
+      expect(result)
+        .to.be.false;
+    });
+  });
+
   describe('Promise', () => {
     it('returns true when provided with a thenable', () => {
       expect(T.Promise({then: () => {}}))
