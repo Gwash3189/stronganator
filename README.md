@@ -354,4 +354,4 @@ const student = StudentType({
 ```
 ## More information
 
-Head to the [details](details.md) page
+Head to the [details](DETAILS.md) page
