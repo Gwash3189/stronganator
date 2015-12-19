@@ -352,3 +352,6 @@ const student = StudentType({
   id: 123
 }); //TypeError
 ```
+## More information
+
+Head to the [details](details.md) page
