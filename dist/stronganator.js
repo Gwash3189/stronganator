@@ -4,6 +4,46 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
+exports.default = function () {
+  var types = arguments.length <= 0 || arguments[0] === undefined ? [] : arguments[0];
+  var returnType = arguments[1];
+
+  return {
+    of: function of(typedFunction) {
+      var funcChecker = function funcChecker() {
+        for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+          args[_key] = arguments[_key];
+        }
+
+        var returnValue = undefined;
+        var validTypes = undefined;
+
+        if (!TypeArray(types)) {
+          types = [types];
+        }
+
+        validTypes = types.every(function (x, i) {
+          return x(args[i]);
+        });
+
+        if (!validTypes) {
+          invalidParamTypes(types, args);
+        }
+        args.push(this);
+        returnValue = typedFunction.apply(this, args);
+
+        if (returnType && !returnType(returnValue)) {
+          invalidReturnType(returnValue, returnType);
+        }
+
+        return returnValue;
+      };
+
+      return funcChecker;
+    }
+  };
+};
+
 var _lodash = require('lodash');
 
 var _lodash2 = _interopRequireDefault(_lodash);
@@ -36,45 +76,7 @@ var invalidReturnType = function invalidReturnType(returnValue, returnType) {
 
 var TypeArray = _types2.default.Array(_types2.default.Union(_types2.default.Type, _types2.default.Object()));
 
-exports.default = function () {
-  var types = arguments.length <= 0 || arguments[0] === undefined ? [] : arguments[0];
-  var returnType = arguments[1];
-
-  return {
-    of: function of(typedFunction) {
-      var funcChecker = function funcChecker() {
-        for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
-          args[_key] = arguments[_key];
-        }
-
-        var returnValue = undefined;
-        var validTypes = undefined;
-
-        if (!TypeArray(types)) {
-          types = [types];
-        }
-
-        validTypes = types.every(function (x, i) {
-          return x(args[i]);
-        });
-
-        if (!validTypes) {
-          invalidParamTypes(types, args);
-        }
-
-        returnValue = (0, _utils.apply)(typedFunction, args);
-
-        if (returnType && !returnType(returnValue)) {
-          invalidReturnType(returnValue, returnType);
-        }
-
-        return returnValue;
-      };
-
-      return funcChecker;
-    }
-  };
-};
+;
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -107,7 +109,11 @@ var errorHandler = function errorHandler(matchedValue, results) {
 var matchHandler = function matchHandler(matcherList) {
   var innerMatchUnion = undefined;
 
-  innerMatchUnion = (0, _utils.apply)(_types2.default.Union, matcherList);
+  var unionTypes = matcherList.map(function (tuple) {
+    return (0, _utils.first)(tuple);
+  });
+
+  innerMatchUnion = (0, _utils.apply)(_types2.default.Union, unionTypes);
 
   return (0, _func2.default)([innerMatchUnion], _types2.default.Any).of(function (x) {
     var results = [],
@@ -287,11 +293,7 @@ exports.default = stringifyType;
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.match = exports.types = exports.func = exports.model = exports.intersection = exports.type = undefined;
-
-var _intersection = require('./intersection');
-
-var _intersection2 = _interopRequireDefault(_intersection);
+exports.match = exports.type = exports.func = exports.model = exports.T = undefined;
 
 var _model = require('./model');
 
@@ -311,24 +313,43 @@ var _func2 = _interopRequireDefault(_func);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-exports.type = _type2.default;
-exports.intersection = _intersection2.default;
+exports.T = _types2.default;
 exports.model = _model2.default;
 exports.func = _func2.default;
-exports.types = _types2.default;
+exports.type = _type2.default;
 exports.match = _func2.default;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-
-exports.default = function (name, checker, types) {
-  checker.map = function (f) {
+var map = function map(name, checker, types) {
+  return function (f) {
     return f({ name: name, checker: checker, types: types });
   };
+};
+
+var extend = function extend(checker) {
+  return function (name, newChecker) {
+    return typeFactory(name, function () {
+      for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+        args[_key] = arguments[_key];
+      }
+
+      return checker.apply(null, args) && newChecker.apply(null, args);
+    }, [checker, newChecker]);
+  };
+};
+
+var typeFactory = function typeFactory(name, checker, types) {
+  checker.map = map(name, checker, types);
+
+  checker.extend = extend(checker);
+
   return checker;
 };
+
+exports.default = typeFactory;
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -362,7 +383,7 @@ var Nil = (0, _type2.default)('Nil', function (nil) {
 });
 
 var Prom = function Prom(prom) {
-  return !!prom.then && types.Function(prom.then);
+  return !!prom.then && T.Function(prom.then);
 };
 
 var Hash = function Hash(o) {
@@ -402,12 +423,12 @@ var Optional = function Optional(type) {
   return Union(type, Nil);
 };
 
-var types = {
+var T = {
   Any: Any,
   Truthy: Truthy,
   Falsey: Falsey,
   Type: (0, _type2.default)('Type', function (t) {
-    return t && t.map && types.Function(t.map) && (0, _utils.map)(_utils.getName, t);
+    return t && t.map && T.Function(t.map) && (0, _utils.map)(_utils.getName, t);
   }),
   Nil: Nil,
   String: (0, _type2.default)('String', function (str) {
@@ -457,11 +478,11 @@ var types = {
       return Any;
     } else if ((typeof propTypes === 'undefined' ? 'undefined' : _typeof(propTypes)) === 'object') {
       return (0, _type2.default)('Object', function (obj) {
-        return Object.keys(propTypes).filter(_utils.filterBlacklist).every(function (key) {
+        return obj && Object.keys(propTypes).filter(_utils.filterBlacklist).every(function (key) {
           return propTypes[key](obj[key]);
         });
       }, propTypes);
-    } else if (types.Type(propTypes)) {
+    } else if (T.Type(propTypes)) {
       return propTypes;
     }
   }),
@@ -478,7 +499,7 @@ var types = {
   'Promise': Prom
 };
 
-exports.default = types;
+exports.default = T;
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
