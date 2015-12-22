@@ -76,3 +76,162 @@ const HttpsURL = GenericString('https://');
 console.log(HttpsURL('https://github.com')) //true
 console.log(HttpsURL('http://github.com')) //false
 ```
+
+# Integration with legacy / existing code
+
+## Functions as classes
+
+```javascript
+var User = function(name) {
+  this.name = name;
+};
+
+// adding stronganator
+
+var UserType = T.Object({
+  name: T.String
+});
+
+var User = func([T.String], UserType)
+           .of(function(name) {
+             this.name = name;
+           });
+```
+
+## ES6 Classes
+
+```javascript
+// user.js
+class User {
+  constructor(name) {
+    this.name = name;
+  }
+}
+
+export default User;
+
+//adding stronganator
+
+//user.js
+var UserType = T.Object({
+  name: T.String
+});
+
+class User {
+  constructor(name) {
+    this.name = name;
+  }
+}
+
+export default func([T.String], UserType)
+               .of((name) => {
+                 return new User(name);
+               });
+```
+
+# Func
+
+Typed functions are created by combining types, and the `func` interface.
+
+## Usage
+
+`func` takes a `function` and returns a `function`. The exact function definition is.
+
+`func(T.Array(T.Type), ReturnType?) -> {of: (T.Function() -> ReturnType)}`
+`func(T.Type) -> {of: (T.Function(T.Type) -> T.Any)}`
+
+* **T.Array(T.Type)**: Should be an array of types. Such as `T.String` or a custom type.
+  * **T.Type**: Can also be a single type. By using this signature, we assume your function will return a type of `Any` and only has one parameter
+* **ReturnType?**: Is an optional parameter, if it is not included, the type of `Any` will be used.
+* **of**: is a function, which takes a function that returns the provided `ReturnType`. The parameter types provided to `func` should match in position to the parameters passed to this function.
+
+## Example
+
+```javascript
+func([T.String], T.Object({name: T.String}))
+.of((name) => {
+  return {
+    name: name
+  }
+});
+//or
+func(T.String) //only type checks the first parameter
+.of((name) => {
+  return {
+    name: name
+  }
+});
+```
+
+# Pattern Matching
+
+Pattern Matching is done through using the `match` function. This function expects pairs (Tuples) of `[Type, Function]`. `match` returns a function, so deep pattern matching is possible.
+
+A match function can only be called with types in which it can match. For example, the following match can only be called with `numbers` and `strings`.
+
+```javascript
+const StringNumberMatch = match([
+  [T.String, (name) => name.toUpperCase()],
+  [T.Number, (n) => n * 2],
+]);
+```
+
+Calling it with any other type will result in a `TypeError`
+
+Additionally, a type can not match multiple types with the pattern match.
+
+```javascript
+const StringNumberMatch = match([
+  [T.String, (name) => name.toUpperCase()],
+  [T.String, (name) => name.toLowerCase()],
+]);
+```
+
+Calling the resulting function with a string will also cause a `TypeError`
+
+## Usage
+```javascript
+match([
+  [T.Type, T.Function(T.Type)]
+])
+```
+
+* **Type**: any type created with a in-built type, or a custom type.
+* **func**: A function, that must handle the type provided to it. Functions provided to the `match` interface are automatically typed with their matching type. Such as, `T.Function(T.Type)` will become `func(T.Type).of(...)`
+
+```javascript
+const UrlTypeMatch = match([
+  [HttpsType, () => return 'its https' ],
+  [HttpType, () => return 'its http' ]
+]);
+
+const UrlMatch = match([
+  [UrlType, UrlTypeMatch]
+])
+```
+
+# Model
+
+Model is used to create classes, models, really any object that you want to create multiple instances of.
+
+`model(ModelDefinition) -> constructorFunction(T.ModelDefinition) -> Model`
+
+* **ModelDefinition**: An object with key:type pairs that describe the model.
+
+## Usage
+
+```javascript
+
+const User = model({
+  name: T.String,
+  details: T.Object({
+    
+  })
+});
+// or
+const User = model({
+  name: T.String,
+  details: DetailsModel
+});
+
+```
