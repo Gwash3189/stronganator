@@ -47,7 +47,7 @@ const T = {
   Truthy,
   Falsey,
   Type: type('Type', (t) => {
-    return t && t.map && T.Function(t.map) && map(getName, t);
+    return !!(t && t.map && T.Function(t.map) && map(getName, t));
   }),
   Nil,
   String: type('String', (str) => typeof str === 'string'),

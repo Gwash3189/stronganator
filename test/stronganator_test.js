@@ -51,6 +51,18 @@ describe('Types', () => {
     });
   });
 
+  describe('Type', () => {
+    it('returns true when provided with a Type', () => {
+      expect(T.Type(T.String))
+        .to.be.true;
+    });
+
+    it('returns false when provided with a non-Type', () => {
+      expect(T.Type(''))
+        .to.be.false;
+    });
+  });
+
   describe('Promise', () => {
     it('returns true when provided with a thenable', () => {
       expect(T.Promise({then: () => {}}))
