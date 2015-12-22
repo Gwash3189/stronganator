@@ -1,6 +1,6 @@
 {
   "name": "stronganator",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "Types and (optional) run time type checking for JavaScript",
   "main": "dist/stronganator.js",
   "dependencies": {
