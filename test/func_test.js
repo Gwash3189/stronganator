@@ -5,7 +5,20 @@ import T from '../src/types';
 import model from '../src/model';
 import { expect } from 'chai';
 
+const noop = () => {};
+
 describe('func', () => {
+
+  context('when .returns is used', () => {
+    it('type checks the return type', () => {
+      expect(func(T.Any).of(noop).returns(T.Truthy))
+        .to.throw();
+
+      expect(func(T.Any).of(noop).returns(T.Any))
+        .not.to.throw();
+    });
+  });
+
   it('Should provide a func endpoint', () => {
     expect(func)
       .to.be.a('function');

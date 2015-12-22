@@ -4,46 +4,6 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-exports.default = function () {
-  var types = arguments.length <= 0 || arguments[0] === undefined ? [] : arguments[0];
-  var returnType = arguments[1];
-
-  return {
-    of: function of(typedFunction) {
-      var funcChecker = function funcChecker() {
-        for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
-          args[_key] = arguments[_key];
-        }
-
-        var returnValue = undefined;
-        var validTypes = undefined;
-
-        if (!TypeArray(types)) {
-          types = [types];
-        }
-
-        validTypes = types.every(function (x, i) {
-          return x(args[i]);
-        });
-
-        if (!validTypes) {
-          invalidParamTypes(types, args);
-        }
-        args.push(this);
-        returnValue = typedFunction.apply(this, args);
-
-        if (returnType && !returnType(returnValue)) {
-          invalidReturnType(returnValue, returnType);
-        }
-
-        return returnValue;
-      };
-
-      return funcChecker;
-    }
-  };
-};
-
 var _lodash = require('lodash');
 
 var _lodash2 = _interopRequireDefault(_lodash);
@@ -76,4 +36,56 @@ var invalidReturnType = function invalidReturnType(returnValue, returnType) {
 
 var TypeArray = _types2.default.Array(_types2.default.Union(_types2.default.Type, _types2.default.Object()));
 
-;
+var returnsHandler = function returnsHandler() {
+  var types = arguments.length <= 0 || arguments[0] === undefined ? [] : arguments[0];
+  var typedFunction = arguments[1];
+
+  return function (type) {
+    return func(types, type).of(typedFunction);
+  };
+};
+
+var func = function func() {
+  var types = arguments.length <= 0 || arguments[0] === undefined ? [] : arguments[0];
+  var returnType = arguments[1];
+
+  return {
+    of: function of(typedFunction) {
+      var funcChecker = function funcChecker() {
+        for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+          args[_key] = arguments[_key];
+        }
+
+        var returnValue = undefined;
+        var validTypes = undefined;
+
+        if (!TypeArray(types)) {
+          types = [types];
+        }
+
+        validTypes = types.every(function (x, i) {
+          return x(args[i]);
+        });
+
+        if (!validTypes) {
+          invalidParamTypes(types, args);
+        }
+
+        args.push(this);
+        returnValue = typedFunction.apply(this, args);
+
+        if (returnType && !returnType(returnValue)) {
+          invalidReturnType(returnValue, returnType);
+        }
+
+        return returnValue;
+      };
+
+      funcChecker.returns = returnsHandler(types, typedFunction);
+
+      return funcChecker;
+    }
+  };
+};
+
+exports.default = func;

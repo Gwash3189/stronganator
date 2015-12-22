@@ -2,7 +2,7 @@ import _ from 'lodash';
 
 import stringifyType from './stringifyType';
 import T from './types';
-import { mapName, apply } from './utils';
+import { mapName } from './utils';
 
 const invalidParamTypes = (types, args) => {
   const requiredTyped = JSON.stringify(stringifyType(types), null, 4);
@@ -18,7 +18,13 @@ const invalidReturnType = (returnValue, returnType) => {
 
 const TypeArray = T.Array(T.Union(T.Type, T.Object()));
 
-export default function(types = [], returnType) {
+const returnsHandler = (types = [], typedFunction) => {
+  return (type) => {
+    return func(types, type).of(typedFunction);
+  };
+};
+
+const func = (types = [], returnType) => {
   return {
     of(typedFunction) {
       const funcChecker = function(...args) {
@@ -35,6 +41,7 @@ export default function(types = [], returnType) {
         if (!validTypes) {
           invalidParamTypes(types, args);
         }
+
         args.push(this);
         returnValue = typedFunction.apply(this, args);
 
@@ -45,7 +52,11 @@ export default function(types = [], returnType) {
         return returnValue;
       };
 
+      funcChecker.returns = returnsHandler(types, typedFunction);
+
       return funcChecker;
     }
   };
 };
+
+export default func;
