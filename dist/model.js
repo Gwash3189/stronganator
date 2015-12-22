@@ -35,8 +35,6 @@ var ModelDefinition = (0, _type2.default)('ModelDefinition', function (modelDef)
         return handler(x);
       }
 
-      console.log(x);
-
       return _types2.default.Type(x);
     });
   };
