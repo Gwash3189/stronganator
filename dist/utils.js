@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.apply = exports.filterBlacklist = exports.arrayify = exports.third = exports.second = exports.first = exports.mapTypes = exports.mapName = exports.map = exports.getTypes = exports.getName = exports.get = exports.blacklist = undefined;
+exports.functor = exports.apply = exports.filterBlacklist = exports.arrayify = exports.third = exports.second = exports.first = exports.mapTypes = exports.mapName = exports.map = exports.getTypes = exports.getName = exports.get = exports.blacklist = undefined;
 
 var _lodash = require('lodash');
 
@@ -39,4 +39,9 @@ var filterBlacklist = exports.filterBlacklist = function filterBlacklist(x) {
 };
 var apply = exports.apply = function apply(func, arr) {
   return func.apply(null, arr);
+};
+var functor = exports.functor = function functor(f) {
+  return function (fun) {
+    return fun(f());
+  };
 };

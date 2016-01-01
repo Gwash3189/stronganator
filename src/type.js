@@ -1,4 +1,16 @@
-const map = (name, checker, types) => (f) => f({name, checker, types});
+import { functor } from './utils';
+
+const metaFactory = ({name, checker, types}) => {
+  const meta = { name, checker, types };
+
+  meta.map = functor(() => [
+    { 'name': name },
+    { 'checker': checker },
+    { 'types': types }
+  ]);
+
+  return meta;
+};
 
 const extend = (checker) => (name, newChecker) => {
   return typeFactory(name, (...args) => {
@@ -7,7 +19,9 @@ const extend = (checker) => (name, newChecker) => {
 };
 
 const typeFactory = (name, checker, types) => {
-  checker.map = map(name, checker, types);
+  checker.map = functor(() => {
+    return metaFactory({ name, checker, types });
+  });
 
   checker.extend = extend(checker);
 

@@ -1,12 +1,23 @@
-"use strict";
+'use strict';
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-var map = function map(name, checker, types) {
-  return function (f) {
-    return f({ name: name, checker: checker, types: types });
-  };
+
+var _utils = require('./utils');
+
+var metaFactory = function metaFactory(_ref) {
+  var name = _ref.name;
+  var checker = _ref.checker;
+  var types = _ref.types;
+
+  var meta = { name: name, checker: checker, types: types };
+
+  meta.map = (0, _utils.functor)(function () {
+    return [{ 'name': name }, { 'checker': checker }, { 'types': types }];
+  });
+
+  return meta;
 };
 
 var extend = function extend(checker) {
@@ -22,7 +33,9 @@ var extend = function extend(checker) {
 };
 
 var typeFactory = function typeFactory(name, checker, types) {
-  checker.map = map(name, checker, types);
+  checker.map = (0, _utils.functor)(function () {
+    return metaFactory({ name: name, checker: checker, types: types });
+  });
 
   checker.extend = extend(checker);
 
