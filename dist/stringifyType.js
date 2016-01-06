@@ -16,35 +16,37 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
 var stringifyType = function stringifyType(types) {
   var isNonGeneric = function isNonGeneric(type) {
-    return !(0, _utils.map)(_utils.getTypes, type);
+    return !(0, _utils.mapTypes)(type);
   };
 
   var handleNestedArrays = function handleNestedArrays(type) {
-    var result = stringifyType([(0, _utils.map)(_utils.getTypes, (0, _utils.map)(_utils.getTypes, type))]);
+    var result = stringifyType([(0, _utils.mapTypes)((0, _utils.mapTypes)(type))]);
     return '[[' + result + ']]';
   };
 
   return types.map(function (type) {
-    if (isNonGeneric(type)) return (0, _utils.map)(_utils.getName, type);
-
-    if ((0, _utils.map)(_utils.getName, type) === 'Array') {
-      //nested arrays
-      if ((0, _utils.map)(_utils.getName, (0, _utils.map)(_utils.getTypes, type)) === 'Array') {
-        return handleNestedArrays(type);
-      }
-      return '[' + (0, _utils.map)(_utils.getName, (0, _utils.map)(_utils.getTypes, type)) + ']';
+    if (isNonGeneric(type)) {
+      return (0, _utils.mapName)(type);
     }
 
-    var propNames = Object.keys((0, _utils.map)(_utils.getTypes, type)).filter(_utils.filterBlacklist);
+    if ((0, _utils.mapName)(type) === 'Array') {
+      //nested arrays
+      if ((0, _utils.mapName)((0, _utils.mapTypes)(type)) === 'Array') {
+        return handleNestedArrays(type);
+      }
+      return '[' + (0, _utils.mapName)((0, _utils.mapTypes)(type)) + ']';
+    }
+
+    var propNames = Object.keys((0, _utils.mapTypes)(type)).filter(_utils.filterBlacklist);
 
     var typeName = propNames.map(function (y) {
-      return (0, _utils.map)(_utils.getName, (0, _utils.get)(y, (0, _utils.map)(_utils.getTypes, type)));
-    });
+      return (0, _utils.get)(y, (0, _utils.mapTypes)(type));
+    }).map(_utils.mapName);
 
     var objectTypes = propNames.filter(function (_, i) {
       return typeName[i] === 'Object';
     }).map(function (y) {
-      var makeChildTypeObject = _lodash2.default.compose(_utils.first, stringifyType, _utils.arrayify, (0, _utils.get)(y), (0, _utils.map)(_utils.getTypes));
+      var makeChildTypeObject = _lodash2.default.compose(_utils.first, stringifyType, _utils.arrayify, (0, _utils.get)(y), _utils.mapTypes);
       return _defineProperty({}, y, makeChildTypeObject(type));
     });
 
@@ -54,7 +56,7 @@ var stringifyType = function stringifyType(types) {
       return _defineProperty({}, x, typeName[i]);
     });
 
-    return _lodash2.default.extend.apply(null, [{}].concat(objectTypes, otherTypes));
+    return (0, _utils.apply)(_lodash2.default.extend, [{}].concat(objectTypes, otherTypes));
   });
 };
 

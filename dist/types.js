@@ -76,7 +76,7 @@ var T = {
   Truthy: Truthy,
   Falsey: Falsey,
   Type: (0, _type2.default)('Type', function (t) {
-    return !!(t && t.map && T.Function(t.map) && (0, _utils.map)(_utils.getName, t));
+    return !!(t && t.map && T.Function(t.map) && (0, _utils.mapName)(t));
   }),
   Nil: Nil,
   String: (0, _type2.default)('String', function (str) {

@@ -23,8 +23,8 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 function _typeof(obj) { return obj && typeof Symbol !== "undefined" && obj.constructor === Symbol ? "symbol" : typeof obj; }
 
 var invalidParamTypes = function invalidParamTypes(types, args) {
-  var requiredTyped = JSON.stringify((0, _stringifyType2.default)(types), null, 4);
-  var providedArguments = JSON.stringify(_lodash2.default.flatten(args));
+  var requiredTyped = (0, _utils.stringify)((0, _stringifyType2.default)(types));
+  var providedArguments = (0, _utils.stringify)(_lodash2.default.flatten(args));
   throw new TypeError('Needed ' + requiredTyped + ' but got ' + providedArguments);
 };
 

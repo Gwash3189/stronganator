@@ -374,10 +374,13 @@ describe('Types', () => {
 
 describe('type errors', () => {
   describe('func', () => {
-    const incorrectParamMessage = `Needed [
+    const incorrectParamMessage = `eeded [
     "Number",
     "Number"
-] but got [1,"2"]`;
+] but got [
+    1,
+    "2"
+]`;
 
     describe('non-generic', () => {
       it('throws a type error detailing the provided types', () => {
@@ -398,13 +401,14 @@ describe('type errors', () => {
 
     describe('generics', () => {
       describe('array', () => {
-        const genericTypeErrorMessage = `Needed [
+        const genericTypeErrorMessage = `eeded [
     "[String]"
-] but got [1]`;
+] but got [
+    1
+]`;
 
         it('throws a type error detailing the provided generic types', () => {
           const f = func([T.Array(T.String)]).of((x) => x[0]);
-
           expect(() => f([1]))
             .to.throw(TypeError,genericTypeErrorMessage);
         });
@@ -412,12 +416,15 @@ describe('type errors', () => {
         describe('nested', () => {
           const nestedErrorMessage = `Needed [
     "[[String]]"
-] but got [[1]]`;
+] but got [
+    [
+        1
+    ]
+]`;
 
           it('throws a type error detailing the provided generic types', () => {
             const f = func([T.Array(T.Array(T.String))])
                       .of((x) => x[0]);
-
             expect(() => f([[1]])).to.throw(TypeError, nestedErrorMessage);
           });
         });
@@ -429,7 +436,11 @@ describe('type errors', () => {
     {
         "name": "String"
     }
-] but got [{"name":1}]`;
+] but got [
+    {
+        "name": 1
+    }
+]`;
 
         it('throws a type error detailing the provided generic types', () => {
           const f = func([t]).of((x) => x);
@@ -452,7 +463,13 @@ describe('type errors', () => {
             "x": "String"
         }
     }
-] but got [{"name":{"x":1}}]`;
+] but got [
+    {
+        "name": {
+            "x": 1
+        }
+    }
+]`;
 
           it('throws a type error detailing the provided generic types', () => {
             const f = func([t]).of((x) => x);
@@ -475,7 +492,12 @@ describe('type errors', () => {
         "name": "String"
     },
     "[String]"
-] but got [{"name":1},1]`;
+] but got [
+    {
+        "name": 1
+    },
+    1
+]`;
         it('returns a type error detailing all arguments', () => {
           const f = func([tObject, tArray]).of((x) => x);
 
@@ -484,24 +506,16 @@ describe('type errors', () => {
         });
 
         describe('nested', () => {
+          const nestedObjectMessage = `Needed [\n    {\n        "name": {\n            "x": "String"\n        }\n    },\n    "[[String]]"\n] but got [\n    {\n        "name": 1\n    },\n    1\n]`;
+
           it('returns a type error detailing all arguments', () => {
             const f = func([T.Object({
               name: T.Object({
                 x: T.String
               })
             }), T.Array(T.Array(T.String))]).of((x) => x);
-            try {
-              f({name: 1}, [1]);
-            } catch (e) {
-              expect(`Needed [
-    {
-        "name": {
-            "x": "String"
-        }
-    },
-    "[[String]]"
-] but got [{"name":1},1]`).to.equal(e.message);
-            }
+
+            expect(() => f({name: 1}, [1])).to.throw(TypeError, nestedObjectMessage);
           });
         });
       });

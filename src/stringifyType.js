@@ -1,45 +1,47 @@
 import _ from 'lodash';
 
 import {
-  map,
-  getTypes,
-  getName,
   filterBlacklist,
   get,
   first,
-  arrayify } from './utils';
+  arrayify,
+  mapName,
+  mapTypes,
+  apply
+} from './utils';
 
 const stringifyType = (types) => {
   const isNonGeneric = (type) => {
-    return !map(getTypes, type);
+    return !mapTypes(type);
   };
 
   const handleNestedArrays = (type) => {
     const result = stringifyType([
-      map(getTypes, map(getTypes, type))
+      mapTypes(mapTypes(type))
     ]);
     return `[[${result}]]`;
   };
 
   return types.map(type => {
-    if (isNonGeneric(type)) return map(getName, type);
+    if (isNonGeneric(type)) {
+      return mapName(type);
+    }
 
-    if (map(getName, type) === 'Array') {
+    if (mapName(type) === 'Array') {
       //nested arrays
-      if (map(getName, map(getTypes, type)) === 'Array') {
+      if (mapName(mapTypes(type)) === 'Array') {
         return handleNestedArrays(type);
       }
-      return `[${map(getName, map(getTypes, type))}]`;
+      return `[${mapName(mapTypes(type))}]`;
     }
 
     const propNames = Object
-                     .keys(map(getTypes, type))
+                     .keys(mapTypes(type))
                      .filter(filterBlacklist);
 
     const typeName = propNames
-                     .map(y => {
-                       return map(getName, get(y, map(getTypes, type)));
-                     });
+                     .map(y => get(y, mapTypes(type)))
+                     .map(mapName);
 
     const objectTypes = propNames
                         .filter((_, i) => typeName[i] === 'Object')
@@ -49,7 +51,7 @@ const stringifyType = (types) => {
                                                         stringifyType,
                                                         arrayify,
                                                         get(y),
-                                                        map(getTypes)
+                                                        mapTypes
                                                       );
                           return { [y]: makeChildTypeObject(type) };
                         });
@@ -59,8 +61,8 @@ const stringifyType = (types) => {
                        .map((x, i) => {
                          return { [x]: typeName[i] };
                        });
-
-    return _.extend.apply(null, [{}].concat(objectTypes, otherTypes));
+                       
+    return apply(_.extend,[{}].concat(objectTypes, otherTypes));
   });
 };
 

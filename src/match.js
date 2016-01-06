@@ -7,38 +7,38 @@ const MatcherList = T.Array(MatcherUnion);
 
 const errorHandler = (matchedValue, results) => {
   let message = `${matchedValue} matched more than one type. Only one type must be matched.\n`;
+
   message = message + results.map(result => {
     return `Type: ${mapName(first(result))}, Result: ${second(result)}`;
   }).join('\n');
+
   throw new TypeError(message);
 };
 
 const matchHandler = (matcherList) => {
-  let innerMatchUnion;
-
-  const unionTypes = matcherList.map(tuple => first(tuple));
-
-  innerMatchUnion = apply(T.Union, unionTypes);
+  const unionTypes = matcherList.map(first);
+  const innerMatchUnion = apply(T.Union, unionTypes);
 
   return func([innerMatchUnion], T.Any)
-         .of((x) => {
-           let results = [],
-               value;
+   .of((x) => {
+     let results = [],
+         value;
 
-           matcherList.forEach(pair => {
-             const type = first(pair);
-             if (type(x)) {
-               value = second(pair)(x);
-               results.push([first(pair), value]);
-             }
-           });
+     matcherList.forEach(pair => {
+       const [ type ] = pair;
 
-           if (results.length > 1) {
-             errorHandler(x, results);
-           }
+       if (type(x)) {
+         value = second(pair)(x);
+         results.push([type, value]);
+       }
+     });
 
-           return value;
-         });
+     if (results.length > 1) {
+       errorHandler(x, results);
+     }
+
+     return value;
+   });
 };
 
 const match = func([MatcherList], T.Function)

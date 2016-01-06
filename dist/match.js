@@ -1,5 +1,7 @@
 'use strict';
 
+var _slicedToArray = (function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; })();
+
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
@@ -21,30 +23,30 @@ var MatcherList = _types2.default.Array(MatcherUnion);
 
 var errorHandler = function errorHandler(matchedValue, results) {
   var message = matchedValue + ' matched more than one type. Only one type must be matched.\n';
+
   message = message + results.map(function (result) {
     return 'Type: ' + (0, _utils.mapName)((0, _utils.first)(result)) + ', Result: ' + (0, _utils.second)(result);
   }).join('\n');
+
   throw new TypeError(message);
 };
 
 var matchHandler = function matchHandler(matcherList) {
-  var innerMatchUnion = undefined;
-
-  var unionTypes = matcherList.map(function (tuple) {
-    return (0, _utils.first)(tuple);
-  });
-
-  innerMatchUnion = (0, _utils.apply)(_types2.default.Union, unionTypes);
+  var unionTypes = matcherList.map(_utils.first);
+  var innerMatchUnion = (0, _utils.apply)(_types2.default.Union, unionTypes);
 
   return (0, _func2.default)([innerMatchUnion], _types2.default.Any).of(function (x) {
     var results = [],
         value = undefined;
 
     matcherList.forEach(function (pair) {
-      var type = (0, _utils.first)(pair);
+      var _pair = _slicedToArray(pair, 1);
+
+      var type = _pair[0];
+
       if (type(x)) {
         value = (0, _utils.second)(pair)(x);
-        results.push([(0, _utils.first)(pair), value]);
+        results.push([type, value]);
       }
     });
 

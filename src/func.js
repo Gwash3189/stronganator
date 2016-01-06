@@ -2,11 +2,11 @@ import _ from 'lodash';
 
 import stringifyType from './stringifyType';
 import T from './types';
-import { mapName } from './utils';
+import { mapName, stringify } from './utils';
 
 const invalidParamTypes = (types, args) => {
-  const requiredTyped = JSON.stringify(stringifyType(types), null, 4);
-  const providedArguments = JSON.stringify(_.flatten(args));
+  const requiredTyped = stringify(stringifyType(types));
+  const providedArguments = stringify(_.flatten(args));
   throw new TypeError(`Needed ${requiredTyped} but got ${providedArguments}`);
 };
 

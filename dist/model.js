@@ -24,6 +24,8 @@ var _stringifyType = require('./stringifyType');
 
 var _stringifyType2 = _interopRequireDefault(_stringifyType);
 
+var _utils = require('./utils');
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var ModelDefinition = (0, _type2.default)('ModelDefinition', function (modelDef) {

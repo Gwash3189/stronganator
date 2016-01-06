@@ -1,5 +1,5 @@
 import type from './type';
-import { filterBlacklist, map, getName } from './utils';
+import { filterBlacklist, getName, mapName } from './utils';
 
 const Any = type('Any', () => true);
 
@@ -47,7 +47,7 @@ const T = {
   Truthy,
   Falsey,
   Type: type('Type', (t) => {
-    return !!(t && t.map && T.Function(t.map) && map(getName, t));
+    return !!(t && t.map && T.Function(t.map) && mapName(t));
   }),
   Nil,
   String: type('String', (str) => typeof str === 'string'),

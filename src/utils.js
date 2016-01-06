@@ -13,4 +13,5 @@ export const third = (arr) => arr[2];
 export const arrayify = (n) => [n];
 export const filterBlacklist = (x) => blacklist.indexOf(x) === -1;
 export const apply = (func, arr) => func.apply(null, arr);
-export const functor = (f) => (fun) => fun(f());  
+export const functor = (f) => (fun) => fun(f());
+export const stringify = (json) => JSON.stringify(json, null, 4);

@@ -3,6 +3,7 @@ import assign from 'lodash/object/assign';
 import T from './types';
 import type from './type';
 import stringifyType from './stringifyType';
+import { stringify } from './utils';
 
 const ModelDefinition = type('ModelDefinition', (modelDef) => {
   const handler = (obj) => {

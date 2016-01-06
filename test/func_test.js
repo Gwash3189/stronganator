@@ -8,7 +8,6 @@ import { expect } from 'chai';
 const noop = () => {};
 
 describe('func', () => {
-
   context('when .returns is used', () => {
     it('type checks the return type', () => {
       expect(func(T.Any).of(noop).returns(T.Truthy))

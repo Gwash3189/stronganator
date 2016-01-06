@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.functor = exports.apply = exports.filterBlacklist = exports.arrayify = exports.third = exports.second = exports.first = exports.mapTypes = exports.mapName = exports.map = exports.getTypes = exports.getName = exports.get = exports.blacklist = undefined;
+exports.stringify = exports.functor = exports.apply = exports.filterBlacklist = exports.arrayify = exports.third = exports.second = exports.first = exports.mapTypes = exports.mapName = exports.map = exports.getTypes = exports.getName = exports.get = exports.blacklist = undefined;
 
 var _lodash = require('lodash');
 
@@ -44,4 +44,7 @@ var functor = exports.functor = function functor(f) {
   return function (fun) {
     return fun(f());
   };
+};
+var stringify = exports.stringify = function stringify(json) {
+  return JSON.stringify(json, null, 4);
 };
