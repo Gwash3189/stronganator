@@ -21,10 +21,14 @@ var _func = require('./func');
 
 var _func2 = _interopRequireDefault(_func);
 
+var _match = require('./match');
+
+var _match2 = _interopRequireDefault(_match);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 exports.T = _types2.default;
 exports.model = _model2.default;
 exports.func = _func2.default;
 exports.type = _type2.default;
-exports.match = _func2.default;
+exports.match = _match2.default;
