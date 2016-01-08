@@ -24,8 +24,7 @@
     "build:watch": "babel --watch --out-dir dist/ src/",
     "test": "./node_modules/.bin/mocha 'test/**/*.js' --compilers js:babel-register",
     "test:watch": "./node_modules/.bin/mocha 'test/**/*.js' --compilers js:babel-register --watch",
-    "coverage": "istanbul cover ./node_modules/mocha/bin/_mocha -- -R spec 'test/**/*.js' --compilers js:babel-register",
-    "t": "babel --help"
+    "coverage": "istanbul cover ./node_modules/mocha/bin/_mocha -- -R spec 'test/**/*.js' --compilers js:babel-register"
   },
   "repository": {
     "type": "git",
