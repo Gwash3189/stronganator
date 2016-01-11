@@ -11,10 +11,10 @@ var metaFactory = function metaFactory(_ref) {
   var checker = _ref.checker;
   var types = _ref.types;
 
-  var meta = { name: name, checker: checker, types: types };
+  var meta = { name: name, checker: checker, types: types, isGeneric: false };
 
   meta.map = (0, _utils.functor)(function () {
-    return [{ 'name': name }, { 'checker': checker }, { 'types': types }];
+    return [{ 'name': name }, { 'checker': checker }, { 'types': types }, { 'isGeneric': !!types }];
   });
 
   return meta;

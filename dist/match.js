@@ -22,7 +22,7 @@ var MatcherUnion = _types2.default.Tuple([_types2.default.Type, _types2.default.
 var MatcherList = _types2.default.Array(MatcherUnion);
 
 var errorHandler = function errorHandler(matchedValue, results) {
-  var message = matchedValue + ' matched more than one type. Only one type must be matched.\n';
+  var message = 'Parameter ' + matchedValue + ' matched more than one type. Only one type must be matched.\n';
 
   message = message + results.map(function (result) {
     return 'Type: ' + (0, _utils.mapName)((0, _utils.first)(result)) + ', Result: ' + (0, _utils.second)(result);

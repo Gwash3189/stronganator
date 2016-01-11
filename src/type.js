@@ -1,12 +1,13 @@
 import { functor } from './utils';
 
 const metaFactory = ({name, checker, types}) => {
-  const meta = { name, checker, types };
+  const meta = { name, checker, types, isGeneric: false };
 
   meta.map = functor(() => [
     { 'name': name },
     { 'checker': checker },
-    { 'types': types }
+    { 'types': types },
+    { 'isGeneric': !!types }
   ]);
 
   return meta;

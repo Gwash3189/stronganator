@@ -6,7 +6,7 @@ const MatcherUnion = T.Tuple([T.Type, T.Function]);
 const MatcherList = T.Array(MatcherUnion);
 
 const errorHandler = (matchedValue, results) => {
-  let message = `${matchedValue} matched more than one type. Only one type must be matched.\n`;
+  let message = `Parameter ${matchedValue} matched more than one type. Only one type must be matched.\n`;
 
   message = message + results.map(result => {
     return `Type: ${mapName(first(result))}, Result: ${second(result)}`;

@@ -14,6 +14,13 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 function _typeof(obj) { return obj && typeof Symbol !== "undefined" && obj.constructor === Symbol ? "symbol" : typeof obj; }
 
+var genericFunctor = function genericFunctor(generic) {
+  generic.map = (0, _utils.functor)(function () {
+    return { isGeneric: true };
+  });
+  return generic;
+};
+
 var Any = (0, _type2.default)('Any', function () {
   return true;
 });
@@ -30,23 +37,23 @@ var Nil = (0, _type2.default)('Nil', function (nil) {
   return nil === null || nil === undefined;
 });
 
-var Prom = function Prom(prom) {
+var Prom = (0, _type2.default)('Promise', function (prom) {
   return !!prom.then && T.Function(prom.then);
-};
+});
 
-var Hash = function Hash(o) {
+var Hash = (0, _type2.default)('Hash', function (o) {
   return !Array.isArray(o) && (typeof o === 'undefined' ? 'undefined' : _typeof(o)) === 'object';
-};
+});
 
-var Tuple = function Tuple(typeList) {
+var Tuple = genericFunctor(function (typeList) {
   return (0, _type2.default)('Tuple', function (list) {
     return list.every(function (x, i) {
       return typeList[i](x);
     });
   }, typeList);
-};
+});
 
-var Union = function Union() {
+var Union = genericFunctor(function () {
   for (var _len = arguments.length, types = Array(_len), _key = 0; _key < _len; _key++) {
     types[_key] = arguments[_key];
   }
@@ -65,11 +72,11 @@ var Union = function Union() {
     };
   };
   return (0, _type2.default)(unionName, handler(types));
-};
+});
 
-var Optional = function Optional(type) {
+var Optional = genericFunctor(function (type) {
   return Union(type, Nil);
-};
+});
 
 var T = {
   Any: Any,
@@ -94,34 +101,14 @@ var T = {
   Date: (0, _type2.default)('Date', function (date) {
     return date instanceof Date;
   }),
-  Array: (function (_Array) {
-    function Array() {
-      return _Array.apply(this, arguments);
-    }
-
-    Array.toString = function () {
-      return _Array.toString();
-    };
-
-    return Array;
-  })(function () {
+  Array: genericFunctor(function () {
     var elementType = arguments.length <= 0 || arguments[0] === undefined ? Any : arguments[0];
 
     return (0, _type2.default)('Array', function (arr) {
       return Array.isArray(arr) && arr.every(elementType);
     }, elementType);
   }),
-  Object: (function (_Object) {
-    function Object(_x2) {
-      return _Object.apply(this, arguments);
-    }
-
-    Object.toString = function () {
-      return _Object.toString();
-    };
-
-    return Object;
-  })(function (propTypes) {
+  Object: genericFunctor(function (propTypes) {
     if (!propTypes) {
       return Any;
     } else if ((typeof propTypes === 'undefined' ? 'undefined' : _typeof(propTypes)) === 'object') {
