@@ -41,6 +41,14 @@ var stringifyType = function stringifyType(types) {
 
     var typeName = propNames.map(function (y) {
       return (0, _utils.get)(y, (0, _utils.mapTypes)(type));
+    }).map(function (x) {
+      var propTypeImplementation = x.map(function (y) {
+        return y.type;
+      });
+      if (propTypeImplementation) {
+        return propTypeImplementation;
+      }
+      return x;
     }).map(_utils.mapName);
 
     var objectTypes = propNames.filter(function (_, i) {
