@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.match = exports.type = exports.func = exports.model = exports.T = undefined;
+exports.PropTypes = exports.match = exports.type = exports.func = exports.model = exports.T = undefined;
 
 var _model = require('./model');
 
@@ -25,6 +25,10 @@ var _match = require('./match');
 
 var _match2 = _interopRequireDefault(_match);
 
+var _propTypes = require('./propTypes');
+
+var _propTypes2 = _interopRequireDefault(_propTypes);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 exports.T = _types2.default;
@@ -32,3 +36,4 @@ exports.model = _model2.default;
 exports.func = _func2.default;
 exports.type = _type2.default;
 exports.match = _match2.default;
+exports.PropTypes = _propTypes2.default;
