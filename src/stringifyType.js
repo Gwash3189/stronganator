@@ -41,6 +41,13 @@ const stringifyType = (types) => {
 
     const typeName = propNames
                      .map(y => get(y, mapTypes(type)))
+                     .map(x => {
+                       const propTypeImplementation = x.map(y => y.type);
+                       if (propTypeImplementation) {
+                         return propTypeImplementation;
+                       }
+                       return x;
+                     })
                      .map(mapName);
 
     const objectTypes = propNames
@@ -61,7 +68,7 @@ const stringifyType = (types) => {
                        .map((x, i) => {
                          return { [x]: typeName[i] };
                        });
-                       
+
     return apply(_.extend,[{}].concat(objectTypes, otherTypes));
   });
 };
