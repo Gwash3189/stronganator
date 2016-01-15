@@ -21,7 +21,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 var MatcherUnion = _types2.default.Tuple([_types2.default.Type, _types2.default.Function]);
 var MatcherList = _types2.default.Array(MatcherUnion);
 
-var errorHandler = function errorHandler(matchedValue, results) {
+var tooManyResultsErrorHandler = function tooManyResultsErrorHandler(matchedValue, results) {
   var message = 'Parameter ' + matchedValue + ' matched more than one type. Only one type must be matched.\n';
 
   message = message + results.map(function (result) {
@@ -37,9 +37,21 @@ var matchHandler = function matchHandler(matcherList) {
 
   return (0, _func2.default)([innerMatchUnion], _types2.default.Any).of(function (x) {
     var results = [],
-        value = undefined;
+        value = undefined,
+        defaultMatchFunc = undefined;
 
-    matcherList.forEach(function (pair) {
+    matcherList.filter(function (_ref) {
+      var _ref2 = _slicedToArray(_ref, 2);
+
+      var type = _ref2[0];
+      var func = _ref2[1];
+
+      if ((0, _utils.mapName)(type) === 'Default') {
+        defaultMatchFunc = func;
+        return false;
+      }
+      return true;
+    }).forEach(function (pair) {
       var _pair = _slicedToArray(pair, 1);
 
       var type = _pair[0];
@@ -50,8 +62,14 @@ var matchHandler = function matchHandler(matcherList) {
       }
     });
 
+    if (results.length === 0) {
+      if (defaultMatchFunc) {
+        return defaultMatchFunc(x);
+      }
+    }
+
     if (results.length > 1) {
-      errorHandler(x, results);
+      tooManyResultsErrorHandler(x, results);
     }
 
     return value;

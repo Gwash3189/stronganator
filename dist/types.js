@@ -80,6 +80,9 @@ var Optional = genericFunctor(function (type) {
 
 var T = {
   Any: Any,
+  Default: Any.extend('Default', function () {
+    return true;
+  }),
   Truthy: Truthy,
   Falsey: Falsey,
   Type: (0, _type2.default)('Type', function (t) {

@@ -51,6 +51,7 @@ const Optional = genericFunctor((type) => {
 
 const T = {
   Any,
+  Default: Any.extend('Default', () => true),
   Truthy,
   Falsey,
   Type: type('Type', (t) => {

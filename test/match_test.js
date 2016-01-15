@@ -11,6 +11,7 @@ describe('match', () => {
       matcher,
       numberStub;
 
+  const BigNumber = type('BugNumber', (n) => T.Number(n) && n > 100);
   const Even = type('Even', (n) => T.Number(n) && n % 2 === 0);
 
   beforeEach(() => {
@@ -52,6 +53,28 @@ describe('match', () => {
     it('throws a TypeError with a detailed message', () => {
       expect(() => matcher(2))
         .to.throw(TypeError, `2 matched more than one type. Only one type must be matched.\nType: Number, Result: 4\nType: Even, Result: 4`);
+    });
+  });
+
+  context('T.Default match type', () => {
+    it('is available', () => {
+      expect(T.Default)
+        .to.be.ok;
+    });
+
+    it('is used when no other type is valid', () => {
+      const Action = T.String.extend('Action', (string) => string.indexOf('people/') > -1);
+      const ADD_ALERT_TYPE = Action.extend('ADD_ALERT', (action) => action === 'derps/alerts/ADD_ALERT');
+      const CLEAR_ALERT_TYPE = Action.extend('CLEAR_ALERT', (action) => action === 'derps/alerts/CLEAR_ALERT');
+
+      const matchFunc = match([
+        [ADD_ALERT_TYPE, (x) => x[0] ],
+        [CLEAR_ALERT_TYPE, (x) => x[1]],
+        [T.Default, (x) => x]
+      ]);
+
+      expect(matchFunc('derps'))
+        .to.equal('derps');
     });
   });
 });

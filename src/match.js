@@ -5,7 +5,7 @@ import { first, second, apply, mapName } from './utils';
 const MatcherUnion = T.Tuple([T.Type, T.Function]);
 const MatcherList = T.Array(MatcherUnion);
 
-const errorHandler = (matchedValue, results) => {
+const tooManyResultsErrorHandler = (matchedValue, results) => {
   let message = `Parameter ${matchedValue} matched more than one type. Only one type must be matched.\n`;
 
   message = message + results.map(result => {
@@ -22,9 +22,18 @@ const matchHandler = (matcherList) => {
   return func([innerMatchUnion], T.Any)
    .of((x) => {
      let results = [],
-         value;
+         value,
+         defaultMatchFunc;
 
-     matcherList.forEach(pair => {
+     matcherList
+     .filter(([type, func]) => {
+       if (mapName(type) === 'Default') {
+         defaultMatchFunc = func;
+         return false;
+       }
+       return true;
+     })
+     .forEach(pair => {
        const [ type ] = pair;
 
        if (type(x)) {
@@ -33,8 +42,14 @@ const matchHandler = (matcherList) => {
        }
      });
 
+     if (results.length === 0) {
+       if (defaultMatchFunc) {
+         return defaultMatchFunc(x);
+       }
+     }
+
      if (results.length > 1) {
-       errorHandler(x, results);
+       tooManyResultsErrorHandler(x, results);
      }
 
      return value;
