@@ -53,9 +53,21 @@ var Tuple = genericFunctor(function (typeList) {
   }, typeList);
 });
 
+var Spread = genericFunctor(function () {
+  var elementType = arguments.length <= 0 || arguments[0] === undefined ? Any : arguments[0];
+
+  return (0, _type2.default)('Spread', function () {
+    for (var _len = arguments.length, values = Array(_len), _key = 0; _key < _len; _key++) {
+      values[_key] = arguments[_key];
+    }
+
+    return T.Array(elementType)(values);
+  });
+});
+
 var Union = genericFunctor(function () {
-  for (var _len = arguments.length, types = Array(_len), _key = 0; _key < _len; _key++) {
-    types[_key] = arguments[_key];
+  for (var _len2 = arguments.length, types = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
+    types[_key2] = arguments[_key2];
   }
 
   var unionName = types.map(function (x) {
@@ -133,6 +145,7 @@ var T = {
   Union: Union,
   Optional: Optional,
   Tuple: Tuple,
+  Spread: Spread,
   Hash: Hash,
   'Promise': Prom
 };

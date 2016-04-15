@@ -19,7 +19,7 @@ var _utils = require('./utils');
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var MatcherUnion = _types2.default.Tuple([_types2.default.Type, _types2.default.Function]);
-var MatcherList = _types2.default.Array(MatcherUnion);
+var MatcherList = _types2.default.Spread(MatcherUnion);
 
 var tooManyResultsErrorHandler = function tooManyResultsErrorHandler(matchedValue, results) {
   var message = 'Parameter ' + matchedValue + ' matched more than one type. Only one type must be matched.\n';
@@ -31,7 +31,11 @@ var tooManyResultsErrorHandler = function tooManyResultsErrorHandler(matchedValu
   throw new TypeError(message);
 };
 
-var matchHandler = function matchHandler(matcherList) {
+var matchHandler = function matchHandler() {
+  for (var _len = arguments.length, matcherList = Array(_len), _key = 0; _key < _len; _key++) {
+    matcherList[_key] = arguments[_key];
+  }
+
   var unionTypes = matcherList.map(_utils.first);
   var innerMatchUnion = (0, _utils.apply)(_types2.default.Union, unionTypes);
 

@@ -70,9 +70,11 @@ var func = function func() {
         if (!validTypes) {
           invalidParamTypes(types, args);
         }
+        if (this) {
+          args.push(this);
+        }
 
-        args.push(this);
-        returnValue = typedFunction.apply(this, args);
+        returnValue = typedFunction.bind(this).apply(undefined, args);
 
         if (returnType && !returnType(returnValue)) {
           invalidReturnType(returnValue, returnType);
