@@ -11,18 +11,15 @@ describe('match', () => {
       matcher,
       numberStub;
 
-  const BigNumber = type('BugNumber', (n) => T.Number(n) && n > 100);
   const Even = type('Even', (n) => T.Number(n) && n % 2 === 0);
 
   beforeEach(() => {
     numberStub = stub().returns(4);
 
-    matchList = [
+    matcher = match(
       [T.Number, numberStub],
       [Even, numberStub]
-    ];
-
-    matcher = match(matchList);
+    );
   });
 
   it('returns a function', () => {
@@ -67,11 +64,11 @@ describe('match', () => {
       const ADD_ALERT_TYPE = Action.extend('ADD_ALERT', (action) => action === 'derps/alerts/ADD_ALERT');
       const CLEAR_ALERT_TYPE = Action.extend('CLEAR_ALERT', (action) => action === 'derps/alerts/CLEAR_ALERT');
 
-      const matchFunc = match([
+      const matchFunc = match(
         [ADD_ALERT_TYPE, (x) => x[0] ],
         [CLEAR_ALERT_TYPE, (x) => x[1]],
         [T.Default, (x) => x]
-      ]);
+      );
 
       expect(matchFunc('derps'))
         .to.equal('derps');

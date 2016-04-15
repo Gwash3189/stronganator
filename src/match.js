@@ -3,7 +3,7 @@ import T from './types';
 import { first, second, apply, mapName } from './utils';
 
 const MatcherUnion = T.Tuple([T.Type, T.Function]);
-const MatcherList = T.Array(MatcherUnion);
+const MatcherList = T.Spread(MatcherUnion);
 
 const tooManyResultsErrorHandler = (matchedValue, results) => {
   let message = `Parameter ${matchedValue} matched more than one type. Only one type must be matched.\n`;
@@ -15,7 +15,7 @@ const tooManyResultsErrorHandler = (matchedValue, results) => {
   throw new TypeError(message);
 };
 
-const matchHandler = (matcherList) => {
+const matchHandler = (...matcherList) => {
   const unionTypes = matcherList.map(first);
   const innerMatchUnion = apply(T.Union, unionTypes);
 
@@ -26,21 +26,21 @@ const matchHandler = (matcherList) => {
          defaultMatchFunc;
 
      matcherList
-     .filter(([type, func]) => {
-       if (mapName(type) === 'Default') {
-         defaultMatchFunc = func;
-         return false;
-       }
-       return true;
-     })
-     .forEach(pair => {
-       const [ type ] = pair;
+      .filter(([type, func]) => {
+        if (mapName(type) === 'Default') {
+          defaultMatchFunc = func;
+          return false;
+        }
+        return true;
+      })
+      .forEach(pair => {
+        const [ type ] = pair;
 
-       if (type(x)) {
-         value = second(pair)(x);
-         results.push([type, value]);
-       }
-     });
+        if (type(x)) {
+          value = second(pair)(x);
+          results.push([type, value]);
+        }
+      });
 
      if (results.length === 0) {
        if (defaultMatchFunc) {

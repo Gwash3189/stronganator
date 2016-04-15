@@ -41,9 +41,9 @@ const func = (types = [], returnType) => {
         if (!validTypes) {
           invalidParamTypes(types, args);
         }
+        if (this) { args.push(this); }
 
-        args.push(this);
-        returnValue = typedFunction.apply(this, args);
+        returnValue = typedFunction.bind(this)(...args);
 
         if (returnType && !returnType(returnValue)) {
           invalidReturnType(returnValue, returnType);

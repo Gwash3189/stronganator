@@ -75,10 +75,11 @@ const StringArray = T.Array(T.String);
 Stronganator has the power to model generic types, this is done through the use of higher order functions. An example of a generic type is an `Array` as it simply a container for other values. To use the Array type (and any generic type) you must first provide a type definition. Then, a function is returned that validates that type definition against the provided data.
 
 The provided generic types are
- * `Array`:   `ƒ(types: [Types]) -> ƒ(items: Type) -> Boolean`
- * `Object`:  `ƒ(types: Object({ typeName: Type })) -> ƒ(item: Object) -> Boolean`
- * `Union`:   `ƒ(types: [Types]) -> ƒ(items: Any) -> Boolean`
- * `Tuple`:   `ƒ(types: [Type1, Type2 ...]) -> ƒ(tuple: [type1, type2 ...]) -> Boolean`
+ * `Array`:      `ƒ(types: [Types]) -> ƒ(items: Type) -> Boolean`
+ * `Spread`:     `f([types: [Types]]) -> f(items: Type) -> Boolean`
+ * `Object`:     `ƒ(types: Object({ typeName: Type })) -> ƒ(item: Object) -> Boolean`
+ * `Union`:      `ƒ(types: [Types]) -> ƒ(items: Any) -> Boolean`
+ * `Tuple`:      `ƒ(types: [Type1, Type2 ...]) -> ƒ(tuple: [type1, type2 ...]) -> Boolean`
  * `Optional`:   `ƒ(type: Type) -> ƒ(x: Type || Nil) -> Boolean`
 
 ##### Usage
@@ -137,6 +138,15 @@ console.log(UserArray([
 console.log(UserArray([
   {name: 1}
 ]); // false
+```
+
+###### Spread
+
+```javascript
+const UserSpread = T.Spread(userType);
+// returns a function that checks that all elements pass the provided type checking
+const firstUser = func(UserSpread)
+  .of((...users) => user[0]);
 ```
 
 ###### Union
@@ -215,9 +225,9 @@ console.log(getName({name: 'gwash'})); // TypeError: Needed [{ "name": "String"}
 
 `import { match } from 'stronganator';`
 
-match: `ƒ(tuples: [[Type, Function], ...]) -> ƒ(items: Type) -> Any`
+match: `ƒ(tuples: [Type, Function], ...) -> ƒ(items: Type) -> Any`
 
-Pattern matching works by accepting a list of Tuples.
+Pattern matching works by accepting multiple Tuples.
 These Tuples are of `[type.Type, type.Function]`.
 
 The `match` function returns the pattern matching function.
@@ -226,10 +236,10 @@ This pattern matching function accepts **only the types that are to be matched u
 #### Example
 
 ```javascript
-const Match = match([
+const Match = match(
   [T.String, (str) => console.log('String:', str)],
   [T.Number, (n) => console.log('Number:', n)]
-]);
+);
 
 console.log(Match(5)) //Number: 5
 console.log(Match('5')) //String: 5
@@ -241,12 +251,22 @@ Additionally, if there are multiple matches for a provided argument, a `TypeErro
 
 
 ```javascript
-const Match = match([
+const Match = match(
   [T.Number, (n) => n * 1
   [T.Number, (n) => n * 2
-]);
+);
 
 console.log(Match('5')) //TypeError: 5 matched more than one type. Only one type must be matched. Type: Number, Result: 5 Type: Number, Result: 10
+```
+
+Lastly, if you want to have a fall through case, you can use the `Default` type.
+
+```javascript
+const Match = match(
+  [T.String, (str) => console.log('String:', str)],
+  [T.Number, (n) => console.log('Number:', n)],
+  [T.Default, (x) => console.log('Item not supported:', x)]
+);
 ```
 
 ### Model

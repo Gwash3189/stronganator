@@ -30,6 +30,12 @@ const Tuple = genericFunctor((typeList) => {
   }, typeList);
 });
 
+const Spread = genericFunctor((elementType = Any) => {
+  return type('Spread', (...values) => {
+    return T.Array(elementType)(values);
+  });
+});
+
 const Union = genericFunctor((...types) => {
   const unionName = types.map(x => x.map(getName)).join(' || ');
   const handler = (types) => {
@@ -86,6 +92,7 @@ const T = {
   Union,
   Optional,
   Tuple,
+  Spread,
   Hash,
   'Promise': Prom
 };
