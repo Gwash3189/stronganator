@@ -24,7 +24,7 @@ const returnsHandler = (types = [], typedFunction) => {
   };
 };
 
-const func = (types = [], returnType) => {
+const func = (types = [], returnType = T.Any) => {
   return {
     of(typedFunction) {
       const funcChecker = function(...args) {
@@ -45,7 +45,7 @@ const func = (types = [], returnType) => {
 
         returnValue = typedFunction.bind(this)(...args);
 
-        if (returnType && !returnType(returnValue)) {
+        if (!returnType(returnValue)) {
           invalidReturnType(returnValue, returnType);
         }
 
